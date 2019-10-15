@@ -1,5 +1,5 @@
 #!/bin/sh
-docker build . -t obs-util
+docker build . -t domix/obs-util
 echo
 echo
 echo "To run the docker container execute:"
