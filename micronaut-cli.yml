@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: obs.util
+---
+testFramework: junit
+sourceLanguage: java
