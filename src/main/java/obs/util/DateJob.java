@@ -26,7 +26,7 @@ public class DateJob {
     storage = new ConcurrentHashMap<>();
   }
 
-  public void foo(FileProps build) {
+  public FileProps schedule(FileProps build) {
     ScheduledFuture<FileProps> schedule = taskScheduler
       .schedule(build.getCronExpression(), new DatetimeFileWriter(this, build));
 
@@ -36,6 +36,8 @@ public class DateJob {
       .build();
 
     storage.put(build.getId(), myTask);
+
+    return build;
   }
 
   public void removeTask(String id) {

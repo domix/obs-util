@@ -63,6 +63,7 @@ public class DatetimeFileWriter implements Callable<FileProps> {
       System.out.println("Segundos : " + segundos);
       */
 
+      //TODO:
       out.append("Empezamos en ");
       if (hours > 0) {
         out.append(hours);

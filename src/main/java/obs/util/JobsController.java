@@ -16,8 +16,7 @@ public class JobsController {
 
   @Post
   public FileProps create(@Body FileProps data) {
-    dateJob.foo(data);
-    return data;
+    return dateJob.schedule(data);
   }
 
   @Delete("/{id}")
