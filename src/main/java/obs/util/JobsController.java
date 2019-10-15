@@ -2,6 +2,8 @@ package obs.util;
 
 import io.micronaut.http.annotation.*;
 
+import java.util.List;
+
 import static io.micronaut.http.HttpStatus.NO_CONTENT;
 
 @Controller("/v1/jobs")
@@ -14,7 +16,6 @@ public class JobsController {
 
   @Post
   public FileProps create(@Body FileProps data) {
-    System.out.println(data.toString());
     dateJob.foo(data);
     return data;
   }
@@ -22,6 +23,11 @@ public class JobsController {
   @Delete("/{id}")
   @Status(NO_CONTENT)
   public void delete(@PathVariable String id) {
-    dateJob.fff(id);
+    dateJob.removeTask(id);
+  }
+
+  @Get
+  public List<FileProps> list() {
+    return dateJob.allTasks();
   }
 }

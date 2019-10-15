@@ -6,10 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import javax.inject.Singleton;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledFuture;
+
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Singleton
@@ -23,8 +26,6 @@ public class DateJob {
     storage = new ConcurrentHashMap<>();
   }
 
-  //@Scheduled(cron = "* * * * * *")
-  //@Scheduled(cron = "* 0 0 ? * * *")
   public void foo(FileProps build) {
     ScheduledFuture<FileProps> schedule = taskScheduler
       .schedule(build.getCronExpression(), new DatetimeFileWriter(this, build));
@@ -37,16 +38,25 @@ public class DateJob {
     storage.put(build.getId(), myTask);
   }
 
-  public void fff(String id) {
-    MyTask remove = storage.remove(id);
-    remove.getScheduledFuture().cancel(false);
-    Optional<FileProps> fileProps = Optional.ofNullable(remove.getFileProps());
+  public void removeTask(String id) {
+    ofNullable(storage.remove(id)).ifPresent(myTask -> {
+      myTask.getScheduledFuture().cancel(false);
+      blankFile(myTask.getFileProps().getDestination());
+    });
+  }
 
+  public void blankFile(String file) {
     try {
-      writeToFile(remove.getFileProps().getDestination(), "");
+      writeToFile(file, "");
     } catch (Throwable t) {
       log.error(t.getMessage(), t);
     }
+  }
+
+  public List<FileProps> allTasks() {
+    return storage.values()
+      .stream().map(MyTask::getFileProps)
+      .collect(toList());
   }
 
   public void writeToFile(String destination, String str) throws IOException {
