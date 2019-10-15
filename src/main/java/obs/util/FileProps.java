@@ -18,6 +18,8 @@ public class FileProps {
   private String outputFormat;
   private String timeZone;
   private String dateFormatPattern;
+  private String prefix = "Empezamos en ";
+  private String startedMessage = "Empezando...";
 
   private String destination;
   private String startTime;

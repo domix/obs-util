@@ -11,6 +11,8 @@ import static java.util.TimeZone.getTimeZone;
 
 @Slf4j
 public class DatetimeFileWriter implements Callable<FileProps> {
+  public static final String ZERO = "0";
+  public static final String COLON = ":";
   private final DateJob dateJob;
   private final FileProps props;
 
@@ -29,7 +31,6 @@ public class DatetimeFileWriter implements Callable<FileProps> {
     }
     return props;
   }
-
 
   public void write() throws Exception {
     SimpleDateFormat formatter = new SimpleDateFormat(props.getDateFormatPattern(), Locale.ENGLISH);
@@ -51,50 +52,32 @@ public class DatetimeFileWriter implements Callable<FileProps> {
       int minutes = (int) ((difference / (1000 * 60)) % 60);
       int hours = (int) ((difference / (1000 * 60 * 60)) % 24);
 
-      /*long days = DAYS.convert(difference, MILLISECONDS);
-      long horas = HOURS.convert(difference, MILLISECONDS);
-      long minutos = MINUTES.convert(difference, MILLISECONDS);
-      long segundos = SECONDS.convert(difference, MILLISECONDS);
-
-
-      System.out.println("Dias     : " + days);
-      System.out.println("Horas    : " + horas);
-      System.out.println("Minutos  : " + minutos);
-      System.out.println("Segundos : " + segundos);
-      */
-
-      //TODO:
-      out.append("Empezamos en ");
+      out.append(props.getPrefix());
       if (hours > 0) {
         out.append(hours);
-        out.append(":");
+        out.append(COLON);
       }
       if (minutes >= 0) {
-        //if (hours > 0 && minutes < 10) {
         if (minutes < 10 && (hours > 0)) {
-          out.append("0");
+          out.append(ZERO);
         } else {
           if (minutes != 0) {
             out.append(minutes);
-            out.append(":");
+            out.append(COLON);
           }
         }
       }
 
       if (seconds < 10 && (hours > 0 || minutes > 0)) {
-        out.append("0");
+        out.append(ZERO);
       }
       if (seconds >= 0) {
         out.append(seconds);
       }
       str = out.toString();
     } else {
-      str = "Empezando...";
+      str = props.getStartedMessage();
     }
-
     dateJob.writeToFile(props.getDestination(), str);
-    return;
   }
-
-
 }
