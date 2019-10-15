@@ -18,8 +18,8 @@ public class FileProps {
   private String outputFormat;
   private String timeZone;
   private String dateFormatPattern;
-  private String prefix = "Empezamos en ";
-  private String startedMessage = "Empezando...";
+  private String prefix;
+  private String startedMessage;
 
   private String destination;
   private String startTime;
@@ -32,5 +32,7 @@ public class FileProps {
     this.dateFormatPattern = "dd-M-yyyy hh:mm:ss a";
     this.outputFormat = "hh:mm:ss";
     this.timeZone = "America/Mexico_City";
+    this.prefix = "Empezamos en ";
+    this.startedMessage = "Empezando...";
   }
 }
