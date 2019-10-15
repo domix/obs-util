@@ -1,11 +1,9 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "5.0.0"
+    id "com.github.johnrengelman.shadow" version "5.1.0"
     id "application"
     id "net.ltgt.apt-eclipse" version "0.21"
     id "com.github.ben-manes.versions" version "0.26.0"
 }
-
-
 
 version "0.1"
 group "obs.util"
