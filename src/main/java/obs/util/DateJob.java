@@ -42,6 +42,7 @@ public class DateJob {
 
   public void removeTask(String id) {
     ofNullable(storage.remove(id)).ifPresent(myTask -> {
+      log.info("Removing task {}", myTask.getFileProps().getId());
       myTask.getScheduledFuture().cancel(false);
       blankFile(myTask.getFileProps().getDestination());
     });
