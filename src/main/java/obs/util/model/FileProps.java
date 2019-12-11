@@ -1,4 +1,4 @@
-package obs.util;
+package obs.util.model;
 
 import lombok.Builder;
 import lombok.Data;

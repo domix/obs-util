@@ -1,6 +1,7 @@
-package obs.util;
+package obs.util.service;
 
 import lombok.extern.slf4j.Slf4j;
+import obs.util.model.FileProps;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

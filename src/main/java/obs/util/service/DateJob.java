@@ -1,7 +1,9 @@
-package obs.util;
+package obs.util.service;
 
 import io.micronaut.scheduling.TaskScheduler;
 import lombok.extern.slf4j.Slf4j;
+import obs.util.model.FileProps;
+import obs.util.model.MyTask;
 
 import javax.inject.Singleton;
 import java.io.FileOutputStream;
