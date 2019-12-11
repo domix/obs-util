@@ -1,8 +1,9 @@
-package obs.util;
+package obs.util.service;
 
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.discovery.event.ServiceShutdownEvent;
 import lombok.extern.slf4j.Slf4j;
+import obs.util.DateJob;
 
 import javax.inject.Singleton;
 
