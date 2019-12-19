@@ -1,6 +1,7 @@
 package obs.util.service;
 
 import lombok.extern.slf4j.Slf4j;
+import obs.util.model.ActiveVideo;
 import obs.util.model.Video;
 import org.yaml.snakeyaml.Yaml;
 
@@ -8,6 +9,7 @@ import javax.inject.Singleton;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -16,6 +18,7 @@ import java.util.concurrent.ConcurrentMap;
 public class VideosService {
   private final ConcurrentMap<String, Video> storage;
   private final Yaml yaml;
+  private ActiveVideo activeVideo = new ActiveVideo();
 
   public VideosService() {
     storage = new ConcurrentHashMap<>();
@@ -34,5 +37,24 @@ public class VideosService {
     } catch (Throwable t) {
       log.warn(t.getMessage(), t);
     }
+  }
+
+  public Video setVideoActive(String id) {
+    Video video = storage.get(id);
+    activeVideo.setResourceIndex(0);
+    activeVideo.setVideo(video);
+    return video;
+  }
+
+  public ActiveVideo getActive() {
+    if (Objects.isNull(activeVideo.getVideo())) {
+      return null;
+    }
+    return this.activeVideo;
+  }
+
+  public void inactive() {
+    activeVideo.setVideo(null);
+    activeVideo.setResourceIndex(0);
   }
 }

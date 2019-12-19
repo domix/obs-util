@@ -2,6 +2,7 @@ package obs.util.api;
 
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import obs.util.model.ActiveVideo;
 import obs.util.model.Video;
 import obs.util.service.VideosService;
 
@@ -34,5 +35,20 @@ public class VideoController {
     } catch (Exception e) {
       return e.getMessage();
     }
+  }
+
+  @Put("/{id}")
+  public Video setActive(String id) {
+    return videosService.setVideoActive(id);
+  }
+
+  @Get("/_active")
+  public ActiveVideo active() {
+    return videosService.getActive();
+  }
+
+  @Delete("/_active")
+  public void inactive() {
+    videosService.inactive();
   }
 }
