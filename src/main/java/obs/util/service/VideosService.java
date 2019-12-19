@@ -28,8 +28,9 @@ public class VideosService {
 
   public void foo(byte[] bytes) {
     try (var is = new ByteArrayInputStream(bytes)) {
-      Object load = yaml.load(is);
-      System.out.println(load.toString());
+      Video video = yaml.load(is);
+      log.info(video.toString());
+      storage.put(video.getId(), video);
     } catch (Throwable t) {
       log.warn(t.getMessage(), t);
     }
