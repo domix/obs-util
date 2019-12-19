@@ -29,7 +29,7 @@ public class VideoController {
   public String create(CompletedFileUpload video) {
     try {
       byte[] bytes = video.getBytes();
-      videosService.foo(bytes);
+      videosService.add(bytes);
       return video.getFilename() + ": " + bytes.length;
     } catch (Exception e) {
       return e.getMessage();

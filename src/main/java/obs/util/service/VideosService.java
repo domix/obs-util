@@ -26,7 +26,7 @@ public class VideosService {
     return new ArrayList<>(storage.values());
   }
 
-  public void foo(byte[] bytes) {
+  public void add(byte[] bytes) {
     try (var is = new ByteArrayInputStream(bytes)) {
       Video video = yaml.load(is);
       log.info(video.toString());
