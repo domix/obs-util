@@ -1,14 +1,18 @@
 package obs.util.model;
 
-import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-@Builder
+import java.util.List;
+
 @Getter
+@Setter
+@ToString
 public class Video {
   private String id;
   private String showName;
   private String showTitle;
   private String showSubtitle;
-  //private List
+  private List<Resource> resources;
 }

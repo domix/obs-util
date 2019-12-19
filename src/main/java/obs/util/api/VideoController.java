@@ -28,8 +28,11 @@ public class VideoController {
   @Post(consumes = MULTIPART_FORM_DATA)
   public String create(CompletedFileUpload video) {
     try {
-      return video.getFilename() + ": " + video.getBytes().length;
-    } catch (IOException e) {
+
+      byte[] bytes = video.getBytes();
+      videosService.foo(bytes);
+      return video.getFilename() + ": " + bytes.length;
+    } catch (Exception e) {
       return e.getMessage();
     }
   }

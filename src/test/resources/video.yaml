@@ -1,0 +1,10 @@
+!!obs.util.model.Video
+id: goo
+showName: showName
+showTitle: showTitle
+showSubtitle: showSubtitle
+resources:
+  - name: uno
+    type: TWEET
+    url: http://foo.com
+  - name: dos
