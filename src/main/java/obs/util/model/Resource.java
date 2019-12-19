@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import static obs.util.model.VideoResource.NEWS_ITEM;
+import static obs.util.model.ResourceType.NEWS_ITEM;
 
 @Getter
 @Setter
@@ -12,5 +12,5 @@ import static obs.util.model.VideoResource.NEWS_ITEM;
 public class Resource {
   private String name;
   private String url;
-  private VideoResource type = NEWS_ITEM;
+  private ResourceType type = NEWS_ITEM;
 }
