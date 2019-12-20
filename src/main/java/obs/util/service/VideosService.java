@@ -2,25 +2,31 @@ package obs.util.service;
 
 import lombok.extern.slf4j.Slf4j;
 import obs.util.model.ActiveVideo;
+import obs.util.model.Resource;
 import obs.util.model.Video;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.inject.Singleton;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 
 @Slf4j
 @Singleton
 public class VideosService {
   private final ConcurrentMap<String, Video> storage;
   private final Yaml yaml;
+  private final DateJob dateJob;
   private ActiveVideo activeVideo = new ActiveVideo();
 
-  public VideosService() {
+  public VideosService(DateJob dateJob) {
+    this.dateJob = dateJob;
     storage = new ConcurrentHashMap<>();
     yaml = new Yaml();
   }
@@ -56,5 +62,60 @@ public class VideosService {
   public void inactive() {
     activeVideo.setVideo(null);
     activeVideo.setResourceIndex(0);
+  }
+
+
+  @SuppressWarnings("RedundantCast")
+  public Optional<Resource> resource(Consumer<ActiveVideo> preAction, Consumer<ActiveVideo> postAction) {
+
+    return Optional.ofNullable(getActive())
+      .map(activeVideo -> {
+          Optional.ofNullable(preAction).ifPresent(activeVideoConsumer -> {
+            activeVideoConsumer.accept(activeVideo);
+          });
+          var index = activeVideo.getResourceIndex();
+          log.info("Index: {}", index);
+          Optional<Resource> result = Optional.empty();
+          try {
+            Resource resource = writeResourceData(activeVideo);
+
+            Optional.ofNullable(postAction).ifPresent(activeVideoConsumer -> {
+              activeVideoConsumer.accept(activeVideo);
+            });
+
+            result = Optional.of(resource);
+          } catch (IOException e) {
+            log.warn(e.getMessage(), e);
+          }
+          return result;
+        }
+      );
+  }
+
+  private Resource writeResourceData(ActiveVideo activeVideo) throws IOException {
+    var video = activeVideo.getVideo();
+    var index = activeVideo.getResourceIndex();
+    dateJob.writeToFile(video.getShowNameFile(), video.getShowName());
+    dateJob.writeToFile(video.getShowTitleFile(), video.getShowTitle());
+    dateJob.writeToFile(video.getShowSubtitleFile(), video.getShowSubtitle());
+
+    var resource = video.getResources().get(index);
+    dateJob.writeToFile(video.getActiveResourceFile(), resource.getName());
+    return resource;
+  }
+
+  public void nextResource() {
+    resource(null, ActiveVideo::incResourceIndex);
+  }
+
+  public void prevResource() {
+    resource(activeVideo1 -> {
+      log.info("Ac index: {}", activeVideo1.getResourceIndex());
+      activeVideo1.decResourceIndex();
+    }, null);
+  }
+
+  public void startResource() {
+    resource(ActiveVideo::resetResourceIndex, null);
   }
 }

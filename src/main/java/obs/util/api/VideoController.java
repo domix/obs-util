@@ -51,4 +51,19 @@ public class VideoController {
   public void inactive() {
     videosService.inactive();
   }
+
+  @Get("/_active/resource/next")
+  public void activeNextResource() {
+    videosService.nextResource();
+  }
+
+  @Get("/_active/resource/prev")
+  public void activePrevResource() {
+    videosService.prevResource();
+  }
+
+  @Get("/_active/resource/start")
+  public void activeStartResource() {
+    videosService.startResource();
+  }
 }
