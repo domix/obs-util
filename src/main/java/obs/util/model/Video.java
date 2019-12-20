@@ -14,5 +14,22 @@ public class Video {
   private String showName;
   private String showTitle;
   private String showSubtitle;
+  private String baseWorkDir;
   private List<Resource> resources;
+
+  public String getShowNameFile() {
+    return baseWorkDir + "/showname.txt";
+  }
+
+  public String getShowTitleFile() {
+    return baseWorkDir + "/showtitle.txt";
+  }
+
+  public String getShowSubtitleFile() {
+    return baseWorkDir + "/showsubtitle.txt";
+  }
+
+  public String getActiveResourceFile() {
+    return baseWorkDir + "/resourcetitle.txt";
+  }
 }
