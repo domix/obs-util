@@ -75,19 +75,19 @@ public class VideosService {
           });
           var index = activeVideo.getResourceIndex();
           log.info("Index: {}", index);
-          Optional<Resource> result = Optional.empty();
+          Resource resource = null;
           try {
-            Resource resource = writeResourceData(activeVideo);
+            resource = writeResourceData(activeVideo);
 
             Optional.ofNullable(postAction).ifPresent(activeVideoConsumer -> {
               activeVideoConsumer.accept(activeVideo);
             });
 
-            result = Optional.of(resource);
+
           } catch (IOException e) {
             log.warn(e.getMessage(), e);
           }
-          return result;
+          return Optional.ofNullable(resource);
         }
       );
   }
