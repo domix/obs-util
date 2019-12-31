@@ -68,7 +68,12 @@ public class VideosService {
   @SuppressWarnings("RedundantCast")
   public Optional<Resource> resource(Consumer<ActiveVideo> preAction, Consumer<ActiveVideo> postAction) {
 
-    return Optional.ofNullable(getActive())
+    var activeVideo = Optional.ofNullable(getActive());
+    activeVideo.map(video -> {
+      
+      return null;
+    });
+    /*return Optional.ofNullable(getActive())
       .map(activeVideo -> {
           Optional.ofNullable(preAction).ifPresent(activeVideoConsumer -> {
             activeVideoConsumer.accept(activeVideo);
@@ -82,14 +87,13 @@ public class VideosService {
             Optional.ofNullable(postAction).ifPresent(activeVideoConsumer -> {
               activeVideoConsumer.accept(activeVideo);
             });
-
-
           } catch (IOException e) {
             log.warn(e.getMessage(), e);
           }
           return Optional.ofNullable(resource);
         }
-      );
+      );*/
+    return null;
   }
 
   private Resource writeResourceData(ActiveVideo activeVideo) throws IOException {
