@@ -16,6 +16,7 @@ public class Video {
   private String showSubtitle;
   private String baseWorkDir;
   private List<Resource> resources;
+  private List<Participant> participants;
 
   public String getShowNameFile() {
     return baseWorkDir + "/showname.txt";
