@@ -1,0 +1,7 @@
+FROM gradle:6.0.1-jdk11 as builder
+
+LABEL stage=builder
+
+WORKDIR /app
+COPY . /app
+RUN gradle clean build -x test
