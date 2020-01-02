@@ -4,6 +4,10 @@ showName: showName
 showTitle: showTitle
 showSubtitle: showSubtitle
 baseWorkDir: "/Users/domix/developer/github/domix/obs-util/foo"
+participants:
+  - name: Domingo Suarez Torres
+    twitter: domix
+    github: domix
 resources:
   - name: uno
     type: TWEET
