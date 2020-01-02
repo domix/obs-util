@@ -14,5 +14,6 @@ public class Participant {
   private String name;
   private String twitter;
   private String github;
-
+  private String company;
+  private String companyTitle;
 }
