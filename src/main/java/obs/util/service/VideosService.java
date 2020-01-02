@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
+import static java.util.Optional.ofNullable;
+
 @Slf4j
 @Singleton
 public class VideosService {
@@ -64,47 +66,38 @@ public class VideosService {
     activeVideo.setResourceIndex(0);
   }
 
-
-  @SuppressWarnings("RedundantCast")
   public Optional<Resource> resource(Consumer<ActiveVideo> preAction, Consumer<ActiveVideo> postAction) {
 
-    var activeVideo = Optional.ofNullable(getActive());
-    activeVideo.map(video -> {
-      
-      return null;
-    });
-    /*return Optional.ofNullable(getActive())
-      .map(activeVideo -> {
-          Optional.ofNullable(preAction).ifPresent(activeVideoConsumer -> {
-            activeVideoConsumer.accept(activeVideo);
-          });
-          var index = activeVideo.getResourceIndex();
-          log.info("Index: {}", index);
-          Resource resource = null;
-          try {
-            resource = writeResourceData(activeVideo);
+    return ofNullable(getActive())
+      .map(video -> {
+        ofNullable(preAction).ifPresent(action -> action.accept(video));
 
-            Optional.ofNullable(postAction).ifPresent(activeVideoConsumer -> {
-              activeVideoConsumer.accept(activeVideo);
-            });
-          } catch (IOException e) {
-            log.warn(e.getMessage(), e);
-          }
-          return Optional.ofNullable(resource);
+        var index = video.getResourceIndex();
+        log.info("Index: {}", index);
+        Resource resource = null;
+
+        try {
+          resource = writeResourceData(video);
+
+          ofNullable(postAction).ifPresent(action -> action.accept(video));
+        } catch (IOException e) {
+          log.warn(e.getMessage(), e);
         }
-      );*/
-    return null;
+        return ofNullable(resource);
+      }).get();
   }
 
   private Resource writeResourceData(ActiveVideo activeVideo) throws IOException {
     var video = activeVideo.getVideo();
     var index = activeVideo.getResourceIndex();
+
     dateJob.writeToFile(video.getShowNameFile(), video.getShowName());
     dateJob.writeToFile(video.getShowTitleFile(), video.getShowTitle());
     dateJob.writeToFile(video.getShowSubtitleFile(), video.getShowSubtitle());
 
     var resource = video.getResources().get(index);
     dateJob.writeToFile(video.getActiveResourceFile(), resource.getName());
+
     return resource;
   }
 
