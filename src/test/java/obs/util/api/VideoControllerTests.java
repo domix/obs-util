@@ -1,4 +1,4 @@
-package obs.util;
+package obs.util.api;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.RxHttpClient;
