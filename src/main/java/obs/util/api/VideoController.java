@@ -2,6 +2,9 @@ package obs.util.api;
 
 import io.micronaut.http.annotation.*;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.http.multipart.PartData;
+import io.reactivex.Maybe;
+import lombok.extern.slf4j.Slf4j;
 import obs.util.model.ActiveVideo;
 import obs.util.model.Video;
 import obs.util.service.VideosService;
@@ -10,7 +13,9 @@ import java.util.List;
 
 import static io.micronaut.http.HttpStatus.CREATED;
 import static io.micronaut.http.MediaType.MULTIPART_FORM_DATA;
+import static io.reactivex.Maybe.just;
 
+@Slf4j
 @Controller(VideoController.URI)
 public class VideoController {
   public static final String URI = "/v1/videos";
@@ -28,14 +33,18 @@ public class VideoController {
   @Post
   @Status(CREATED)
   @Consumes(MULTIPART_FORM_DATA)
-  public Video create(CompletedFileUpload video) throws Exception {
-    byte[] bytes = video.getBytes();
-    return videosService.add(bytes);
+  public Maybe<Video> create(CompletedFileUpload video) throws Exception {
+    return just(video)
+      .map(PartData::getBytes)
+      .map(videosService::add)
+      .flatMap(Maybe::onErrorComplete);
   }
 
   @Put("/{id}")
-  public Video setActive(String id) {
-    return videosService.setVideoActive(id);
+  public Maybe<Video> setActive(String id) {
+    return Maybe.just(id)
+      .map(videosService::setVideoActive)
+      .flatMap(Maybe::onErrorComplete);
   }
 
   @Get("/_active")
