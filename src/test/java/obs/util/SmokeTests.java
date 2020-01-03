@@ -3,13 +3,13 @@ package obs.util;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.http.client.multipart.MultipartBody;
 import io.micronaut.test.annotation.MicronautTest;
 import io.reactivex.Maybe;
 import lombok.extern.slf4j.Slf4j;
 import obs.util.model.Video;
 import obs.util.service.VideosService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -19,12 +19,12 @@ import java.nio.file.Paths;
 
 import static io.micronaut.http.HttpRequest.POST;
 import static io.micronaut.http.HttpRequest.PUT;
-import static io.micronaut.http.HttpStatus.CREATED;
-import static io.micronaut.http.HttpStatus.OK;
+import static io.micronaut.http.HttpStatus.*;
 import static io.micronaut.http.MediaType.APPLICATION_YAML_TYPE;
 import static io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE;
 import static obs.util.api.VideoController.URI;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 @MicronautTest
@@ -70,18 +70,15 @@ public class SmokeTests {
   }
 
   @Test
-  @Disabled
   void shouldFailWhenSetActiveVideo() throws Exception {
-    /*assertThrows(NumberFormatException.class, () -> {
-      Integer.parseInt("One");
-    });*/
-
     var uri = String.format("%s/%s", URI, "foo");
 
-    HttpResponse<Video> exchange = client.toBlocking()
-      .exchange(PUT(uri, ""));
+    assertThrows(HttpClientResponseException.class, () -> {
+      HttpResponse<Video> response = client.toBlocking()
+        .exchange(PUT(uri, ""));
 
-    assertEquals(OK, exchange.getStatus());
+      assertEquals(NOT_FOUND, response.getStatus());
+    });
   }
 
   private Maybe<Video> addTestVideo() throws Exception {

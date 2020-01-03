@@ -75,18 +75,13 @@ public class VideosService {
     return video;
   }
 
-  public Optional<Video> findVideo(String id) {
-    return Optional.ofNullable(storage.get(id));
-  }
-
   public Maybe<Video> setVideoActive(String id) {
     log.info("About to activate the video '{}'...", id);
     return Maybe.just(id)
       .map(this::findVideoById)
       .map(videoMaybe -> {
         Video video = videoMaybe.blockingGet();
-        activeVideo.setResourceIndex(0);
-        activeVideo.setVideo(video);
+        setActiveVideo(video, 0);
         log.info("Video '{}' activated.", video.getId());
         return video;
       });
@@ -99,9 +94,14 @@ public class VideosService {
     return this.activeVideo;
   }
 
-  public void inactive() {
-    activeVideo.setVideo(null);
-    activeVideo.setResourceIndex(0);
+  public ActiveVideo inactive() {
+    return setActiveVideo(null, 0);
+  }
+
+  public ActiveVideo setActiveVideo(Video video, Integer index) {
+    activeVideo.setVideo(video);
+    activeVideo.setResourceIndex(index);
+    return activeVideo;
   }
 
   public Optional<Resource> resource(Consumer<ActiveVideo> preAction, Consumer<ActiveVideo> postAction) {
