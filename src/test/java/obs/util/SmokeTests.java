@@ -15,6 +15,7 @@ import static io.micronaut.http.HttpRequest.POST;
 import static io.micronaut.http.HttpStatus.CREATED;
 import static io.micronaut.http.MediaType.APPLICATION_YAML_TYPE;
 import static io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE;
+import static obs.util.api.VideoController.URI;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
@@ -40,7 +41,7 @@ public class SmokeTests {
 
     HttpResponse<Video> response = client.toBlocking()
       .exchange(
-        POST("/v1/videos", requestBody)
+        POST(URI, requestBody)
           .contentType(MULTIPART_FORM_DATA_TYPE)
       );
 
