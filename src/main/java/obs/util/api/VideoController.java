@@ -27,14 +27,9 @@ public class VideoController {
   @Post
   @Status(CREATED)
   @Consumes(MULTIPART_FORM_DATA)
-  public String create(CompletedFileUpload video) {
-    try {
-      byte[] bytes = video.getBytes();
-      videosService.add(bytes);
-      return video.getFilename() + ": " + bytes.length;
-    } catch (Exception e) {
-      return e.getMessage();
-    }
+  public Video create(CompletedFileUpload video) throws Exception {
+    byte[] bytes = video.getBytes();
+    return videosService.add(bytes);
   }
 
   @Put("/{id}")

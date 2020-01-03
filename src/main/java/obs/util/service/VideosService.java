@@ -37,13 +37,14 @@ public class VideosService {
     return new ArrayList<>(storage.values());
   }
 
-  public void add(byte[] bytes) {
+  public Video add(byte[] bytes) {
     try (var is = new ByteArrayInputStream(bytes)) {
       Video video = yaml.load(is);
       log.info(video.toString());
       storage.put(video.getId(), video);
+      return video;
     } catch (Throwable t) {
-      log.warn(t.getMessage(), t);
+      throw new RuntimeException(t.getMessage(), t);
     }
   }
 
