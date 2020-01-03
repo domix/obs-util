@@ -61,6 +61,12 @@ public class VideosService {
     return video;
   }
 
+  public void resetStorage() {
+    log.info("Resetting storage");
+    storage.clear();
+    inactive();
+  }
+
   public Maybe<Video> findVideoById(final String id) {
     return just(id)
       .subscribeOn(Schedulers.io())
@@ -92,6 +98,7 @@ public class VideosService {
   }
 
   public ActiveVideo inactive() {
+    log.info("Resetting ActiveVideo");
     return setActiveVideo(null, 0);
   }
 
