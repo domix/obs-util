@@ -21,6 +21,9 @@ import static io.reactivex.Maybe.just;
 public class VideoController {
   public static final String BASE_URI_VIDEOS = "/v1/videos";
   public static final String ACTIVE_VIDEO_URI = "/_active";
+  public static final String ACTIVE_VIDEO_NEXT_RESOURCE_URI = ACTIVE_VIDEO_URI + "/resource/next";
+  public static final String ACTIVE_VIDEO_PREV_RESOURCE_URI = ACTIVE_VIDEO_URI + "/resource/prev";
+  public static final String ACTIVE_VIDEO_START_RESOURCE_URI = ACTIVE_VIDEO_URI + "/resource/start";
   private final VideosService videosService;
 
   public VideoController(VideosService videosService) {
@@ -59,18 +62,21 @@ public class VideoController {
     videosService.inactive();
   }
 
-  @Get("/_active/resource/next")
+  @Get(ACTIVE_VIDEO_NEXT_RESOURCE_URI)
   public Maybe<Resource> activeNextResource() {
+    log.info("Next resource...");
     return videosService.nextResource();
   }
 
-  @Get("/_active/resource/prev")
+  @Get(ACTIVE_VIDEO_PREV_RESOURCE_URI)
   public Maybe<Resource> activePrevResource() {
+    log.info("Previous resource...");
     return videosService.prevResource();
   }
 
-  @Get("/_active/resource/start")
+  @Get(ACTIVE_VIDEO_START_RESOURCE_URI)
   public Maybe<Resource> activeStartResource() {
+    log.info("Start resource...");
     return videosService.startResource();
   }
 }

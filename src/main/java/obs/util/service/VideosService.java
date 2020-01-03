@@ -141,7 +141,7 @@ public class VideosService {
   }
 
   public Maybe<Resource> nextResource() {
-    return resource(null, ActiveVideo::incResourceIndex);
+    return resource(ActiveVideo::incResourceIndex, null);
   }
 
   public Maybe<Resource> prevResource() {
