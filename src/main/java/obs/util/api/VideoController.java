@@ -48,7 +48,7 @@ public class VideoController {
   }
 
   @Get("/_active")
-  public ActiveVideo active() {
+  public Maybe<ActiveVideo> active() {
     return videosService.getActive();
   }
 
