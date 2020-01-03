@@ -40,7 +40,7 @@ public class VideosService {
   public Video add(byte[] bytes) {
     try (var is = new ByteArrayInputStream(bytes)) {
       Video video = yaml.load(is);
-      log.info(video.toString());
+      log.info(video.getId());
       storage.put(video.getId(), video);
       return video;
     } catch (Throwable t) {
