@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+env
 
 docker build -f Dockerfile_build .
 exit_code=$?
