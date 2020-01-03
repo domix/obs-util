@@ -4,4 +4,4 @@ LABEL stage=builder
 
 WORKDIR /app
 COPY . /app
-RUN gradle clean build -x test
+RUN gradle clean build
