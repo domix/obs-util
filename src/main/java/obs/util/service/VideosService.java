@@ -145,10 +145,7 @@ public class VideosService {
   }
 
   public Maybe<Resource> prevResource() {
-    return resource(activeVideo1 -> {
-      log.info("Ac index: {}", activeVideo1.getResourceIndex());
-      activeVideo1.decResourceIndex();
-    }, null);
+    return resource(ActiveVideo::decResourceIndex, null);
   }
 
   public Maybe<Resource> startResource() {

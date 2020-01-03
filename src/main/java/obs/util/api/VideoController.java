@@ -38,7 +38,7 @@ public class VideoController {
   @Post
   @Status(CREATED)
   @Consumes(MULTIPART_FORM_DATA)
-  public Maybe<Video> create(CompletedFileUpload video) throws Exception {
+  public Maybe<Video> create(CompletedFileUpload video) {
     return just(video)
       .map(PartData::getBytes)
       .map(videosService::add)
