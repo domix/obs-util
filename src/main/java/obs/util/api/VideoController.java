@@ -16,9 +16,10 @@ import static io.micronaut.http.MediaType.MULTIPART_FORM_DATA;
 import static io.reactivex.Maybe.just;
 
 @Slf4j
-@Controller(VideoController.URI)
+@Controller(VideoController.BASE_URI_VIDEOS)
 public class VideoController {
-  public static final String URI = "/v1/videos";
+  public static final String BASE_URI_VIDEOS = "/v1/videos";
+  public static final String ACTIVE_VIDEO_URI = "/_active";
   private final VideosService videosService;
 
   public VideoController(VideosService videosService) {
@@ -47,12 +48,12 @@ public class VideoController {
       .flatMap(Maybe::onErrorComplete);
   }
 
-  @Get("/_active")
+  @Get(ACTIVE_VIDEO_URI)
   public Maybe<ActiveVideo> active() {
     return videosService.getActive();
   }
 
-  @Delete("/_active")
+  @Delete(ACTIVE_VIDEO_URI)
   public void inactive() {
     videosService.inactive();
   }
