@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
@@ -87,11 +86,9 @@ public class VideosService {
       });
   }
 
-  public ActiveVideo getActive() {
-    if (Objects.isNull(activeVideo.getVideo())) {
-      return null;
-    }
-    return this.activeVideo;
+  public Maybe<ActiveVideo> getActive() {
+    log.info("About to get ActiveVideo.");
+    return Maybe.just(activeVideo);
   }
 
   public ActiveVideo inactive() {
@@ -104,25 +101,22 @@ public class VideosService {
     return activeVideo;
   }
 
-  public Optional<Resource> resource(Consumer<ActiveVideo> preAction, Consumer<ActiveVideo> postAction) {
-
-    return ofNullable(getActive())
+  public Maybe<Resource> resource(Consumer<ActiveVideo> preAction, Consumer<ActiveVideo> postAction) {
+    return just(activeVideo)
       .map(video -> {
         ofNullable(preAction).ifPresent(action -> action.accept(video));
-
         var index = video.getResourceIndex();
         log.info("Index: {}", index);
-        Resource resource = null;
 
         try {
-          resource = writeResourceData(video);
-
+          Resource resource = writeResourceData(video);
           ofNullable(postAction).ifPresent(action -> action.accept(video));
+          return just(resource);
         } catch (IOException e) {
           log.warn(e.getMessage(), e);
+          throw new RuntimeException(e.getMessage(), e);
         }
-        return ofNullable(resource);
-      }).get();
+      }).flatMap(Maybe::onErrorComplete);
   }
 
   private Resource writeResourceData(ActiveVideo activeVideo) throws IOException {
