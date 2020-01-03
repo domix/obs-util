@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @MicronautTest
-public class SmokeTests {
+public class VideoControllerTests {
   @Inject
   @Client("/")
   RxHttpClient client;
