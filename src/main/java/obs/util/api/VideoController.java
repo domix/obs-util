@@ -11,8 +11,9 @@ import java.util.List;
 import static io.micronaut.http.HttpStatus.CREATED;
 import static io.micronaut.http.MediaType.MULTIPART_FORM_DATA;
 
-@Controller("/v1/videos")
+@Controller(VideoController.URI)
 public class VideoController {
+  public static final String URI = "/v1/videos";
   private final VideosService videosService;
 
   public VideoController(VideosService videosService) {
