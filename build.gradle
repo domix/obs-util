@@ -4,6 +4,8 @@ plugins {
   id "net.ltgt.apt-eclipse" version "0.21"
   id "net.ltgt.apt-idea" version "0.21"
   id "com.github.ben-manes.versions" version "0.27.0"
+  id 'jacoco'
+  id 'com.github.kt3k.coveralls' version '2.9.0'
 }
 
 version "0.1"
@@ -61,4 +63,11 @@ run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxrem
 tasks.withType(JavaCompile) {
   options.encoding = "UTF-8"
   options.compilerArgs.add('-parameters')
+}
+
+jacocoTestReport {
+  reports {
+    xml.enabled = true // coveralls plugin depends on xml format report
+    html.enabled = true
+  }
 }
