@@ -9,6 +9,7 @@ import io.micronaut.test.annotation.MicronautTest;
 import io.reactivex.Maybe;
 import lombok.extern.slf4j.Slf4j;
 import obs.util.model.ActiveVideo;
+import obs.util.model.Resource;
 import obs.util.model.Video;
 import obs.util.service.VideosService;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,8 +24,7 @@ import static io.micronaut.http.HttpRequest.*;
 import static io.micronaut.http.HttpStatus.*;
 import static io.micronaut.http.MediaType.APPLICATION_YAML_TYPE;
 import static io.micronaut.http.MediaType.MULTIPART_FORM_DATA_TYPE;
-import static obs.util.api.VideoController.ACTIVE_VIDEO_URI;
-import static obs.util.api.VideoController.BASE_URI_VIDEOS;
+import static obs.util.api.VideoController.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
@@ -107,6 +107,38 @@ public class VideoControllerTests {
     activeVideo = response.getBody().get();
     assertNotNull(activeVideo.getVideo());
     assertEquals(OK, response.getStatus());
+  }
+
+  @Test
+  void shouldActiveVideoNavigation() throws Exception {
+    Video video = addTestVideo().blockingGet();
+    videosService.setVideoActive(video.getId()).blockingGet();
+
+    HttpResponse<Resource> response = client.toBlocking()
+      .exchange(GET(BASE_URI_VIDEOS + ACTIVE_VIDEO_START_RESOURCE_URI), Resource.class);
+    assertEquals(OK, response.getStatus());
+
+    assertTrue(response.getBody().isPresent());
+    Resource resource = response.getBody().get();
+    assertEquals(video.getResources().get(0).getName(), resource.getName());
+
+
+    response = client.toBlocking()
+      .exchange(GET(BASE_URI_VIDEOS + ACTIVE_VIDEO_NEXT_RESOURCE_URI), Resource.class);
+    assertEquals(OK, response.getStatus());
+
+    assertTrue(response.getBody().isPresent());
+    resource = response.getBody().get();
+    assertEquals(video.getResources().get(1).getName(), resource.getName());
+
+
+    response = client.toBlocking()
+      .exchange(GET(BASE_URI_VIDEOS + ACTIVE_VIDEO_PREV_RESOURCE_URI), Resource.class);
+    assertEquals(OK, response.getStatus());
+
+    assertTrue(response.getBody().isPresent());
+    resource = response.getBody().get();
+    assertEquals(video.getResources().get(0).getName(), resource.getName());
 
   }
 
