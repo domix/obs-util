@@ -6,6 +6,7 @@ import io.micronaut.http.multipart.PartData;
 import io.reactivex.Maybe;
 import lombok.extern.slf4j.Slf4j;
 import obs.util.model.ActiveVideo;
+import obs.util.model.Resource;
 import obs.util.model.Video;
 import obs.util.service.VideosService;
 
@@ -59,17 +60,17 @@ public class VideoController {
   }
 
   @Get("/_active/resource/next")
-  public void activeNextResource() {
-    videosService.nextResource();
+  public Maybe<Resource> activeNextResource() {
+    return videosService.nextResource();
   }
 
   @Get("/_active/resource/prev")
-  public void activePrevResource() {
-    videosService.prevResource();
+  public Maybe<Resource> activePrevResource() {
+    return videosService.prevResource();
   }
 
   @Get("/_active/resource/start")
-  public void activeStartResource() {
-    videosService.startResource();
+  public Maybe<Resource> activeStartResource() {
+    return videosService.startResource();
   }
 }
