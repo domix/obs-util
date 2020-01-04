@@ -1,7 +1,9 @@
 package obs.util.service;
 
+import io.micronaut.context.annotation.Value;
 import io.reactivex.Maybe;
 import io.reactivex.schedulers.Schedulers;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import obs.util.model.ActiveVideo;
 import obs.util.model.Resource;
@@ -11,6 +13,9 @@ import org.yaml.snakeyaml.Yaml;
 import javax.inject.Singleton;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,15 +33,30 @@ public class VideosService {
   private final Yaml yaml;
   private final DateJob dateJob;
   private ActiveVideo activeVideo = new ActiveVideo();
+  @Getter
+  private String baseDirectory;
 
-  public VideosService(DateJob dateJob) {
+  public VideosService(DateJob dateJob, @Value("${basedir:~/.obs-util}") String baseDir) throws IOException {
+    if (baseDir.startsWith("~/")) {
+      String replace = baseDir.replace("~/", "");
+      String home = System.getProperty("user.home");
+      this.baseDirectory = home + "/" + replace;
+    } else {
+      this.baseDirectory = baseDir;
+    }
+
     this.dateJob = dateJob;
     yaml = new Yaml();
+
+    log.info("Using base dir '{}'", baseDirectory);
+    Path path = Paths.get(baseDirectory);
+    Files.createDirectories(path);
   }
 
   private Video createVideo(byte[] bytes) {
     try (var is = new ByteArrayInputStream(bytes)) {
       Video video = yaml.load(is);
+      video.setBaseWorkDir(this.baseDirectory);
       log.info("Loaded video '{}' from bytes.", video.getId());
       return video;
     } catch (Throwable t) {
