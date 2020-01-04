@@ -1,16 +1,17 @@
 !!obs.util.model.Video
 id: goo
-showName: showName
-showTitle: showTitle
-showSubtitle: showSubtitle
-baseWorkDir: "/Users/domix/developer/github/domix/obs-util/foo"
+showName: Cloud Native MX
+showTitle: Podcast S01-E13
+showSubtitle: El recuento de la decada (2010-2019)
 participants:
   - name: Domingo Suarez Torres
     twitter: domix
     github: domix
+  - name: Marco Antonio Muñiz
+    twitter: _marKox
+    github: Markitox
 resources:
   - name: uno
-    type: TWEET
     url: http://foo.com
   - name: dos
   - name: tres
