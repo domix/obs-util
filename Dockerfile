@@ -9,9 +9,16 @@
 #COPY --from=graalvm /home/app/obs-util .
 #ENTRYPOINT ["./obs-util"]
 
-FROM adoptopenjdk:11.0.4_11-jre-openj9-0.15.1
+FROM gradle:6.0.1-jdk11 as builder
 
-COPY build/libs/obs-util-0.1-all.jar /opt/app/obs-util.jar
-COPY run.sh /opt/app/run.sh
-RUN chmod +x /opt/app/run.sh
-ENTRYPOINT ["/opt/app/run.sh"]
+LABEL stage=builder
+
+WORKDIR /app
+COPY . /app
+RUN gradle clean build -x test
+
+FROM adoptopenjdk:11.0.5_10-jre-openj9-0.17.0-bionic
+COPY --from=builder /app/build/libs/obs-util.jar /opt/app/obs-util.jar
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/opt/app/obs-util.jar"]
