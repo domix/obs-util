@@ -11,9 +11,9 @@ import static obs.util.model.Role.HOST;
 @ToString
 public class Participant {
   private Role role = HOST;
-  private String name;
-  private String twitter;
-  private String github;
-  private String company;
-  private String companyTitle;
+  private String name = "";
+  private String twitter = "";
+  private String github = "";
+  private String company = "";
+  private String companyTitle = "";
 }

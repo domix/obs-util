@@ -10,7 +10,9 @@ import static obs.util.model.ResourceType.NEWS_ITEM;
 @Setter
 @ToString
 public class Resource {
-  private String name;
-  private String url;
+  private String name = "";
+  private String url = "";
+  private String description = "";
+  private String summary = "";
   private ResourceType type = NEWS_ITEM;
 }

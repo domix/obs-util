@@ -6,6 +6,7 @@ import io.reactivex.schedulers.Schedulers;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import obs.util.model.ActiveVideo;
+import obs.util.model.Participant;
 import obs.util.model.Resource;
 import obs.util.model.Video;
 import org.yaml.snakeyaml.Yaml;
@@ -105,14 +106,32 @@ public class VideosService {
     return Maybe.just(id)
       .map(this::findVideoById)
       .map(videoMaybe -> {
+
         Video video = videoMaybe.blockingGet();
+        log.info("Activating video {}...", video.getId());
         setActiveVideo(video, 0);
 
+        log.info("About to write general files...");
         dateJob.writeToFile(video.getShowNameFile(), video.getShowName());
         dateJob.writeToFile(video.getShowTitleFile(), video.getShowTitle());
         dateJob.writeToFile(video.getShowSubtitleFile(), video.getShowSubtitle());
+        log.info("General files has been written.");
 
-        //TODO: write participant info here
+        log.info("About to write Participant files...");
+        for (int i = 0; i < video.getParticipants().size(); i++) {
+          try {
+            Participant participant = video.getParticipants().get(i);
+            dateJob.writeToFile(video.getParticipantRoleFile(i), participant.getRole().getName());
+            dateJob.writeToFile(video.getParticipantNameFile(i), participant.getName());
+            dateJob.writeToFile(video.getParticipantTwitterFile(i), participant.getTwitter());
+            dateJob.writeToFile(video.getParticipantGitHubFile(i), participant.getGithub());
+            dateJob.writeToFile(video.getParticipantCompanyFile(i), participant.getCompany());
+            dateJob.writeToFile(video.getParticipantCompanyTitleFile(i), participant.getCompanyTitle());
+          } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+          }
+
+        }
 
         log.info("Video '{}' activated.", video.getId());
         return video;
@@ -159,7 +178,12 @@ public class VideosService {
     var index = activeVideo.getResourceIndex();
     var resource = video.getResources().get(index);
 
-    dateJob.writeToFile(video.getActiveResourceFile(), resource.getName());
+    dateJob.writeToFile(video.getActiveResourceTitleFile(), resource.getName());
+    dateJob.writeToFile(video.getActiveResourceUrlFile(), resource.getUrl());
+    dateJob.writeToFile(video.getActiveResourceDescriptionFile(), resource.getDescription());
+    dateJob.writeToFile(video.getActiveResourceSummaryFile(), resource.getSummary());
+    dateJob.writeToFile(video.getActiveResourceTypeIconFile(), resource.getType().getIconUrl());
+    dateJob.writeToFile(video.getActiveResourceTypeNameFile(), resource.getType().getName());
 
     return resource;
   }
