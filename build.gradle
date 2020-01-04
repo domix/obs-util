@@ -57,6 +57,7 @@ test {
 
 shadowJar {
   mergeServiceFiles()
+  archiveName 'obs-util.jar'
 }
 
 run.classpath += configurations.developmentOnly
