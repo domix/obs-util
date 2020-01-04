@@ -87,6 +87,13 @@ public class VideosService {
       .map(videoMaybe -> {
         Video video = videoMaybe.blockingGet();
         setActiveVideo(video, 0);
+
+        dateJob.writeToFile(video.getShowNameFile(), video.getShowName());
+        dateJob.writeToFile(video.getShowTitleFile(), video.getShowTitle());
+        dateJob.writeToFile(video.getShowSubtitleFile(), video.getShowSubtitle());
+
+        //TODO: write participant info here
+
         log.info("Video '{}' activated.", video.getId());
         return video;
       });
@@ -99,6 +106,7 @@ public class VideosService {
 
   public ActiveVideo inactive() {
     log.info("Resetting ActiveVideo");
+    //TODO: reset files also
     return setActiveVideo(null, 0);
   }
 
@@ -129,12 +137,8 @@ public class VideosService {
   private Resource writeResourceData(ActiveVideo activeVideo) throws IOException {
     var video = activeVideo.getVideo();
     var index = activeVideo.getResourceIndex();
-
-    dateJob.writeToFile(video.getShowNameFile(), video.getShowName());
-    dateJob.writeToFile(video.getShowTitleFile(), video.getShowTitle());
-    dateJob.writeToFile(video.getShowSubtitleFile(), video.getShowSubtitle());
-
     var resource = video.getResources().get(index);
+
     dateJob.writeToFile(video.getActiveResourceFile(), resource.getName());
 
     return resource;
