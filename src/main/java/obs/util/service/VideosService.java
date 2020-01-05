@@ -52,12 +52,12 @@ public class VideosService {
     log.info("Using base dir '{}'", baseDirectory);
     Path path = Paths.get(baseDirectory);
     Files.createDirectories(path);
+    activeVideo.setBaseWorkDir(this.baseDirectory);
   }
 
   private Video createVideo(byte[] bytes) {
     try (var is = new ByteArrayInputStream(bytes)) {
       Video video = yaml.load(is);
-      video.setBaseWorkDir(this.baseDirectory);
       log.info("Loaded video '{}' from bytes.", video.getId());
       return video;
     } catch (Throwable t) {
@@ -155,17 +155,21 @@ public class VideosService {
 
   private Resource writeResourceData(ActiveVideo activeVideo) throws IOException {
     var video = activeVideo.getVideo();
-    var index = activeVideo.getResourceIndex();
-    var resource = video.getResources().get(index);
+    if (Objects.nonNull(video)) {
+      var index = activeVideo.getResourceIndex();
+      var resource = video.getResources().get(index);
 
-    dateJob.writeToFile(video.getActiveResourceTitleFile(), resource.getName());
-    dateJob.writeToFile(video.getActiveResourceUrlFile(), resource.getUrl());
-    dateJob.writeToFile(video.getActiveResourceDescriptionFile(), resource.getDescription());
-    dateJob.writeToFile(video.getActiveResourceSummaryFile(), resource.getSummary());
-    dateJob.writeToFile(video.getActiveResourceTypeIconFile(), resource.getType().getIconUrl());
-    dateJob.writeToFile(video.getActiveResourceTypeNameFile(), resource.getType().getName());
+      dateJob.writeToFile(activeVideo.getActiveResourceTitleFile(), resource.getName());
+      dateJob.writeToFile(activeVideo.getActiveResourceUrlFile(), resource.getUrl());
+      dateJob.writeToFile(activeVideo.getActiveResourceDescriptionFile(), resource.getDescription());
+      dateJob.writeToFile(activeVideo.getActiveResourceSummaryFile(), resource.getSummary());
+      dateJob.writeToFile(activeVideo.getActiveResourceTypeIconFile(), resource.getType().getIconUrl());
+      dateJob.writeToFile(activeVideo.getActiveResourceTypeNameFile(), resource.getType().getName());
 
-    return resource;
+      return resource;
+    }
+    //TODO: improve this
+    return null;
   }
 
   public Maybe<Resource> nextResource() {
@@ -194,9 +198,9 @@ public class VideosService {
     String showTitle = clean ? "" : video.getShowTitle();
     String showSubtitle = clean ? "" : video.getShowSubtitle();
 
-    dateJob.writeToFile(video.getShowNameFile(), showName);
-    dateJob.writeToFile(video.getShowTitleFile(), showTitle);
-    dateJob.writeToFile(video.getShowSubtitleFile(), showSubtitle);
+    dateJob.writeToFile(activeVideo.getShowNameFile(), showName);
+    dateJob.writeToFile(activeVideo.getShowTitleFile(), showTitle);
+    dateJob.writeToFile(activeVideo.getShowSubtitleFile(), showSubtitle);
     log.info("General files has been written.");
 
     log.info("About to write Participant files...");
@@ -210,12 +214,12 @@ public class VideosService {
         String company = clean ? "" : participant.getCompany();
         String companyTitle = clean ? "" : participant.getCompanyTitle();
 
-        dateJob.writeToFile(video.getParticipantRoleFile(i), roleName);
-        dateJob.writeToFile(video.getParticipantNameFile(i), name);
-        dateJob.writeToFile(video.getParticipantTwitterFile(i), twitter);
-        dateJob.writeToFile(video.getParticipantGitHubFile(i), github);
-        dateJob.writeToFile(video.getParticipantCompanyFile(i), company);
-        dateJob.writeToFile(video.getParticipantCompanyTitleFile(i), companyTitle);
+        dateJob.writeToFile(activeVideo.getParticipantRoleFile(i), roleName);
+        dateJob.writeToFile(activeVideo.getParticipantNameFile(i), name);
+        dateJob.writeToFile(activeVideo.getParticipantTwitterFile(i), twitter);
+        dateJob.writeToFile(activeVideo.getParticipantGitHubFile(i), github);
+        dateJob.writeToFile(activeVideo.getParticipantCompanyFile(i), company);
+        dateJob.writeToFile(activeVideo.getParticipantCompanyTitleFile(i), companyTitle);
       } catch (Throwable t) {
         log.error(t.getMessage(), t);
       }
