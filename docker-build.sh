@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-VERSION=0.0.1
 REPO="domix/obs-util"
+TAG=$(grep "version" gradle.properties|cut -d'=' -f2)
+VERSION=$(echo "$TAG" | tr '[:upper:]' '[:lower:]')
+
+
+echo $VERSION
 
 docker build -t ${REPO}:${VERSION} -t ${REPO}:latest . && \
    git release $VERSION && \
