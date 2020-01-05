@@ -16,4 +16,5 @@ public class Participant {
   private String github = "";
   private String company = "";
   private String companyTitle = "";
+  private String avatar = "";
 }
