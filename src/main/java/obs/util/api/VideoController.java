@@ -10,6 +10,7 @@ import obs.util.model.Resource;
 import obs.util.model.Video;
 import obs.util.service.VideosService;
 
+import java.io.IOException;
 import java.util.List;
 
 import static io.micronaut.http.HttpStatus.CREATED;
@@ -21,6 +22,8 @@ import static io.reactivex.Maybe.just;
 public class VideoController {
   public static final String BASE_URI_VIDEOS = "/v1/videos";
   public static final String ACTIVE_VIDEO_URI = "/_active";
+  public static final String ACTIVE_VIDEO_INFO_URI = ACTIVE_VIDEO_URI + "/info";
+
   public static final String ACTIVE_VIDEO_NEXT_RESOURCE_URI = ACTIVE_VIDEO_URI + "/resource/next";
   public static final String ACTIVE_VIDEO_PREV_RESOURCE_URI = ACTIVE_VIDEO_URI + "/resource/prev";
   public static final String ACTIVE_VIDEO_START_RESOURCE_URI = ACTIVE_VIDEO_URI + "/resource/start";
@@ -78,5 +81,12 @@ public class VideoController {
   public Maybe<Resource> activeStartResource() {
     log.info("Start resource...");
     return videosService.startResource();
+  }
+
+  @Get(ACTIVE_VIDEO_INFO_URI)
+  public Maybe<ActiveVideo> writeInfo(@QueryValue(value = "clean", defaultValue = "false") Boolean clean) throws IOException {
+    log.info("Abount to write active video info, with cleaning '{}'", clean);
+    videosService.writeActiveVideoInfo(clean);
+    return this.active();
   }
 }
