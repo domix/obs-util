@@ -111,27 +111,7 @@ public class VideosService {
         log.info("Activating video {}...", video.getId());
         setActiveVideo(video, 0);
 
-        log.info("About to write general files...");
-        dateJob.writeToFile(video.getShowNameFile(), video.getShowName());
-        dateJob.writeToFile(video.getShowTitleFile(), video.getShowTitle());
-        dateJob.writeToFile(video.getShowSubtitleFile(), video.getShowSubtitle());
-        log.info("General files has been written.");
-
-        log.info("About to write Participant files...");
-        for (int i = 0; i < video.getParticipants().size(); i++) {
-          try {
-            Participant participant = video.getParticipants().get(i);
-            dateJob.writeToFile(video.getParticipantRoleFile(i), participant.getRole().getName());
-            dateJob.writeToFile(video.getParticipantNameFile(i), participant.getName());
-            dateJob.writeToFile(video.getParticipantTwitterFile(i), participant.getTwitter());
-            dateJob.writeToFile(video.getParticipantGitHubFile(i), participant.getGithub());
-            dateJob.writeToFile(video.getParticipantCompanyFile(i), participant.getCompany());
-            dateJob.writeToFile(video.getParticipantCompanyTitleFile(i), participant.getCompanyTitle());
-          } catch (Throwable t) {
-            log.error(t.getMessage(), t);
-          }
-
-        }
+        writeActiveVideoInfo(video, false);
 
         log.info("Video '{}' activated.", video.getId());
         return video;
@@ -198,5 +178,48 @@ public class VideosService {
 
   public Maybe<Resource> startResource() {
     return resource(ActiveVideo::resetResourceIndex, null);
+  }
+
+  public void writeActiveVideoInfo(Boolean clean) throws IOException {
+    Video video = activeVideo.getVideo();
+    if (Objects.nonNull(video)) {
+      writeActiveVideoInfo(video, clean);
+    }
+  }
+
+  public void writeActiveVideoInfo(Video video, Boolean clean) throws IOException {
+    log.info("About to write general files...");
+
+    String showName = clean ? "" : video.getShowName();
+    String showTitle = clean ? "" : video.getShowTitle();
+    String showSubtitle = clean ? "" : video.getShowSubtitle();
+
+    dateJob.writeToFile(video.getShowNameFile(), showName);
+    dateJob.writeToFile(video.getShowTitleFile(), showTitle);
+    dateJob.writeToFile(video.getShowSubtitleFile(), showSubtitle);
+    log.info("General files has been written.");
+
+    log.info("About to write Participant files...");
+    for (int i = 0; i < video.getParticipants().size(); i++) {
+      try {
+        Participant participant = video.getParticipants().get(i);
+        String roleName = clean ? "" : participant.getRole().getName();
+        String name = clean ? "" : participant.getName();
+        String twitter = clean ? "" : participant.getTwitter();
+        String github = clean ? "" : participant.getGithub();
+        String company = clean ? "" : participant.getCompany();
+        String companyTitle = clean ? "" : participant.getCompanyTitle();
+
+        dateJob.writeToFile(video.getParticipantRoleFile(i), roleName);
+        dateJob.writeToFile(video.getParticipantNameFile(i), name);
+        dateJob.writeToFile(video.getParticipantTwitterFile(i), twitter);
+        dateJob.writeToFile(video.getParticipantGitHubFile(i), github);
+        dateJob.writeToFile(video.getParticipantCompanyFile(i), company);
+        dateJob.writeToFile(video.getParticipantCompanyTitleFile(i), companyTitle);
+      } catch (Throwable t) {
+        log.error(t.getMessage(), t);
+      }
+
+    }
   }
 }
