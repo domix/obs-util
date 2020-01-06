@@ -109,4 +109,8 @@ public class ActiveVideo {
   public String getParticipantCompanyTitleFile(Integer index) {
     return baseWorkDir + "/participant_" + index + "_companyTitle.txt";
   }
+
+  public String getParticipantAvatarFile(Integer index) {
+    return baseWorkDir + "/participant_" + index + "_avatar.png";
+  }
 }
