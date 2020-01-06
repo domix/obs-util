@@ -3,6 +3,8 @@ id: goo
 showName: Cloud Native MX
 showTitle: Podcast S01-E13
 showSubtitle: El recuento de la decada (2010-2019)
+logoUrl: https://s3.amazonaws.com/cloudnative.mx/media/cloudnative_logo.png
+logoCircled: true
 participants:
   - name: Domingo Suarez Torres
     twitter: domix

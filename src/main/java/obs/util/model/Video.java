@@ -14,6 +14,8 @@ public class Video {
   private String showName;
   private String showTitle;
   private String showSubtitle;
+  private String logoUrl = "";
+  private Boolean logoCircled = Boolean.FALSE;
 
   private List<Resource> resources;
   private List<Participant> participants;

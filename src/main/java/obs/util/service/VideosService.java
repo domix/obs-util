@@ -197,7 +197,7 @@ public class VideosService {
     dateJob.writeToFile(activeVideo.getActiveResourceTypeNameFile(), typeName);
 
     String resourceTypeAvatarFile = activeVideo.getResourceTypeAvatarFile(resource.getType());
-    imageFile(resourceTypeAvatarFile, activeVideo.getActiveResourceTypeAvatarFile(), false, clean);
+    imageFile(resourceTypeAvatarFile, activeVideo.getActiveResourceTypeAvatarFile(), false, clean, 200);
 
     return resource;
   }
@@ -222,7 +222,7 @@ public class VideosService {
     writeResourceData(clean);
   }
 
-  public void writeActiveVideoInfo(Video video, Boolean clean) throws IOException {
+  public void writeActiveVideoInfo(Video video, Boolean clean) throws Exception {
     log.info("About to write general files...");
 
     String showName = clean ? "" : video.getShowName();
@@ -232,6 +232,21 @@ public class VideosService {
     dateJob.writeToFile(activeVideo.getShowNameFile(), showName);
     dateJob.writeToFile(activeVideo.getShowTitleFile(), showTitle);
     dateJob.writeToFile(activeVideo.getShowSubtitleFile(), showSubtitle);
+
+    String tempShowFile = tmpFilesDirectory + "/showLogo.tmp";
+    Boolean success = downloadFile(video.getLogoUrl(), tempShowFile);
+
+    if (success) {
+      try {
+        imageFile(tempShowFile, activeVideo.getShowLogoFile(), video.getLogoCircled(), clean, 400);
+      } catch (Exception e) {
+        log.warn(e.getMessage(), e);
+        //TODO: generate a empty png file when this fails...
+      }
+    } else {
+      //TODO: generate a empty png file when the logo is empty.
+    }
+
     log.info("General files has been written.");
 
     log.info("About to write Participant files...");
@@ -247,7 +262,7 @@ public class VideosService {
         String tempFile = tmpFilesDirectory + "/participantAvatarTmp" + i + "_.tmp";
         downloadFile(participant.getAvatar(), tempFile);
 
-        imageFile(tempFile, activeVideo.getParticipantAvatarFile(i), true, clean);
+        imageFile(tempFile, activeVideo.getParticipantAvatarFile(i), true, clean, 200);
 
         dateJob.writeToFile(activeVideo.getParticipantRoleFile(i), roleName);
         dateJob.writeToFile(activeVideo.getParticipantNameFile(i), name);
@@ -276,13 +291,12 @@ public class VideosService {
   }
 
 
-  public File imageFile(String sourceFile, String destination, Boolean circled, Boolean clean) throws ImageReadException, ImageWriteException, IOException {
+  public File imageFile(String sourceFile, String destination, Boolean circled, Boolean clean, int size) throws ImageReadException, ImageWriteException, IOException {
     File file = new File(sourceFile);
 
     final BufferedImage image = Imaging.getBufferedImage(file);
     final ImageFormat format = ImageFormats.PNG;
     final Map<String, Object> params = new HashMap<>();
-    int size = 200;
     int resize = size;
     BufferedImage resized = resize(image, resize, resize);
     BufferedImage circledAvatar = circled ? circle(resized, resize, clean) : resized;
