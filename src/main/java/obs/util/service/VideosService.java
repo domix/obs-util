@@ -9,11 +9,14 @@ import obs.util.model.ActiveVideo;
 import obs.util.model.Participant;
 import obs.util.model.Resource;
 import obs.util.model.Video;
+import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.inject.Singleton;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +28,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import static io.reactivex.Maybe.just;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
@@ -36,6 +41,7 @@ public class VideosService {
   private ActiveVideo activeVideo = new ActiveVideo();
   @Getter
   private String baseDirectory;
+  private String tmpFilesDirectory;
 
   public VideosService(DateJob dateJob, @Value("${basedir:~/.obs-util}") String baseDir) throws IOException {
     if (baseDir.startsWith("~/")) {
@@ -48,10 +54,13 @@ public class VideosService {
 
     this.dateJob = dateJob;
     yaml = new Yaml();
-
+    tmpFilesDirectory = baseDirectory + "/.tmp";
     log.info("Using base dir '{}'", baseDirectory);
-    Path path = Paths.get(baseDirectory);
-    Files.createDirectories(path);
+
+    Path baseDirectoryPath = Paths.get(baseDirectory);
+    Path tmpDirectoryPath = Paths.get(tmpFilesDirectory);
+    Files.createDirectories(baseDirectoryPath);
+    Files.createDirectories(tmpDirectoryPath);
     activeVideo.setBaseWorkDir(this.baseDirectory);
   }
 
@@ -226,6 +235,11 @@ public class VideosService {
         String company = clean ? "" : participant.getCompany();
         String companyTitle = clean ? "" : participant.getCompanyTitle();
 
+
+        String tempFile = tmpFilesDirectory + "/participantAvatarTmp" + i + "_.tmp";
+        downloadFile(participant.getAvatar(), tempFile);
+
+
         dateJob.writeToFile(activeVideo.getParticipantRoleFile(i), roleName);
         dateJob.writeToFile(activeVideo.getParticipantNameFile(i), name);
         dateJob.writeToFile(activeVideo.getParticipantTwitterFile(i), twitter);
@@ -237,5 +251,18 @@ public class VideosService {
       }
 
     }
+  }
+
+  private Boolean downloadFile(String url, String destination) {
+    Boolean result = FALSE;
+    try {
+      FileUtils.copyURLToFile(
+        new URL(url),
+        new File(destination));
+      result = TRUE;
+    } catch (Throwable t) {
+      log.warn("Cant Download avatar file from " + url, t);
+    }
+    return result;
   }
 }
