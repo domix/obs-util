@@ -244,7 +244,7 @@ public class VideosService {
         String tempFile = tmpFilesDirectory + "/participantAvatarTmp" + i + "_.tmp";
         downloadFile(participant.getAvatar(), tempFile);
 
-        imageFile(tempFile, activeVideo.getParticipantAvatarFile(i), true);
+        imageFile(tempFile, activeVideo.getParticipantAvatarFile(i), true, clean);
 
         dateJob.writeToFile(activeVideo.getParticipantRoleFile(i), roleName);
         dateJob.writeToFile(activeVideo.getParticipantNameFile(i), name);
@@ -273,7 +273,7 @@ public class VideosService {
   }
 
 
-  public File imageFile(String sourceFile, String destination, Boolean circled) throws ImageReadException, ImageWriteException, IOException {
+  public File imageFile(String sourceFile, String destination, Boolean circled, Boolean clean) throws ImageReadException, ImageWriteException, IOException {
     File file = new File(sourceFile);
 
     final BufferedImage image = Imaging.getBufferedImage(file);
@@ -282,17 +282,17 @@ public class VideosService {
     int size = 200;
     int resize = size;
     BufferedImage resized = resize(image, resize, resize);
-    BufferedImage circledAvatar = circled ? circle(resized, resize) : resized;
+    BufferedImage circledAvatar = circled ? circle(resized, resize, clean) : resized;
 
     File destinationFile = new File(destination);
-    BufferedImage canvas = canvas(size, circledAvatar);
+    BufferedImage canvas = canvas(size, circledAvatar, clean);
 
     Imaging.writeImage(canvas, destinationFile, format, params);
 
     return destinationFile;
   }
 
-  public BufferedImage canvas(int width, BufferedImage avatar) {
+  public BufferedImage canvas(int width, BufferedImage avatar, Boolean clean) {
     int height = width;
     // Constructs a BufferedImage of one of the predefined image types.
     BufferedImage bufferedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
@@ -303,10 +303,12 @@ public class VideosService {
     // fill all the image with white
     g2d.setComposite(Clear);
     g2d.fillRect(0, 0, width, height);
-
     g2d.setComposite(Src);
-    RescaleOp rop = new RescaleOp(1f, 4f, null);
-    g2d.drawImage(avatar, rop, 0, 0);
+
+    if (!clean) {
+      RescaleOp rop = new RescaleOp(1f, 4f, null);
+      g2d.drawImage(avatar, rop, 0, 0);
+    }
 
     // Disposes of this graphics context and releases any system resources that it is using.
     g2d.dispose();
@@ -314,11 +316,14 @@ public class VideosService {
     return bufferedImage;
   }
 
-  public BufferedImage circle(BufferedImage bufferedImage, int width) {
+  public BufferedImage circle(BufferedImage bufferedImage, int width, Boolean clean) {
     BufferedImage circleBuffer = new BufferedImage(width, width, TYPE_INT_ARGB);
     Graphics2D g2 = circleBuffer.createGraphics();
     g2.setClip(new Ellipse2D.Float(0, 0, width, width));
-    g2.drawImage(bufferedImage, 0, 0, width, width, null);
+    if (!clean) {
+      g2.drawImage(bufferedImage, 0, 0, width, width, null);
+    }
+
     g2.dispose();
 
     return circleBuffer;
