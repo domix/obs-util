@@ -86,6 +86,10 @@ public class ActiveVideo {
     return baseWorkDir + "/resourceTypeName.txt";
   }
 
+  public String getActiveResourceTypeAvatarFile() {
+    return baseWorkDir + "/resourceType.png";
+  }
+
   public String getParticipantRoleFile(Integer index) {
     return baseWorkDir + "/participant_" + index + "_role.txt";
   }

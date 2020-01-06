@@ -17,3 +17,15 @@ resources:
     url: http://foo.com
   - name: dos
   - name: tres
+  - name: cuatro
+    type: TWEET
+  - name: cinco
+    type: TWEET
+  - name: seis
+    type: REFERENCE
+  - name: siete
+    type: SOURCE_CODE_REPO
+  - name: ocho
+    type: SOURCE_CODE_REPO
+  - name: nueve
+    type: EVENT
