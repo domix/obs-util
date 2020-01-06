@@ -6,14 +6,12 @@ import io.reactivex.schedulers.Schedulers;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import obs.util.model.ActiveVideo;
-import obs.util.model.Participant;
-import obs.util.model.Resource;
-import obs.util.model.Video;
+import obs.util.model.*;
 import org.apache.commons.imaging.*;
 import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -31,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static io.reactivex.Maybe.just;
 import static java.awt.AlphaComposite.Clear;
@@ -330,5 +329,13 @@ public class VideosService {
     return Thumbnails.of(img)
       .size(newW, newH)
       .asBufferedImage();
+  }
+
+  @PostConstruct
+  public void loadResourceTypesIcons() {
+    Stream.of(ResourceType.values()).parallel().forEach(resourceType -> {
+      String resourceFile = tmpFilesDirectory + "/resource_" + resourceType.getName() + ".png";
+      this.downloadFile(resourceType.getIconUrl(), resourceFile);
+    });
   }
 }
