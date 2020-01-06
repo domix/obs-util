@@ -17,4 +17,5 @@ public class Participant {
   private String company = "";
   private String companyTitle = "";
   private String avatar = "";
+  private Boolean circled = Boolean.TRUE;
 }
