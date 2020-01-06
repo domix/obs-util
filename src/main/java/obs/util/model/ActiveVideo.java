@@ -113,4 +113,8 @@ public class ActiveVideo {
   public String getParticipantAvatarFile(Integer index) {
     return baseWorkDir + "/participant_" + index + "_avatar.png";
   }
+
+  public String getResourceTypeAvatarFile(ResourceType resourceType) {
+    return baseWorkDir + "/resourceType_" + resourceType.getName() + ".png";
+  }
 }
