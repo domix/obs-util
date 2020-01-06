@@ -143,7 +143,7 @@ public class VideosService {
         log.info("Index: {}", index);
 
         try {
-          Resource resource = writeResourceData(video);
+          Resource resource = writeResourceData(false);
           ofNullable(postAction).ifPresent(action -> action.accept(video));
           return just(resource);
         } catch (IOException e) {
@@ -153,23 +153,34 @@ public class VideosService {
       }).flatMap(Maybe::onErrorComplete);
   }
 
-  private Resource writeResourceData(ActiveVideo activeVideo) throws IOException {
+  //TODO: improve this, perhaps Resource should be null (use Optional<Resource> instead)
+  private Resource writeResourceData(Boolean clean) throws IOException {
     var video = activeVideo.getVideo();
-    if (Objects.nonNull(video)) {
-      var index = activeVideo.getResourceIndex();
-      var resource = video.getResources().get(index);
-
-      dateJob.writeToFile(activeVideo.getActiveResourceTitleFile(), resource.getName());
-      dateJob.writeToFile(activeVideo.getActiveResourceUrlFile(), resource.getUrl());
-      dateJob.writeToFile(activeVideo.getActiveResourceDescriptionFile(), resource.getDescription());
-      dateJob.writeToFile(activeVideo.getActiveResourceSummaryFile(), resource.getSummary());
-      dateJob.writeToFile(activeVideo.getActiveResourceTypeIconFile(), resource.getType().getIconUrl());
-      dateJob.writeToFile(activeVideo.getActiveResourceTypeNameFile(), resource.getType().getName());
-
-      return resource;
+    var index = activeVideo.getResourceIndex();
+    Resource resource = null;
+    try {
+      resource = video.getResources().get(index);
+    } catch (NullPointerException | IndexOutOfBoundsException e) {
+      log.warn("No resource for index '{}'", index);
     }
-    //TODO: improve this
-    return null;
+
+    boolean emptyText = clean || Objects.isNull(video) || Objects.isNull(resource);
+
+    String name = emptyText ? "" : resource.getName();
+    String url = emptyText ? "" : resource.getUrl();
+    String description = emptyText ? "" : resource.getDescription();
+    String summary = emptyText ? "" : resource.getSummary();
+    String typeIconUrl = emptyText ? "" : resource.getType().getIconUrl();
+    String typeName = emptyText ? "" : resource.getType().getName();
+
+    dateJob.writeToFile(activeVideo.getActiveResourceTitleFile(), name);
+    dateJob.writeToFile(activeVideo.getActiveResourceUrlFile(), url);
+    dateJob.writeToFile(activeVideo.getActiveResourceDescriptionFile(), description);
+    dateJob.writeToFile(activeVideo.getActiveResourceSummaryFile(), summary);
+    dateJob.writeToFile(activeVideo.getActiveResourceTypeIconFile(), typeIconUrl);
+    dateJob.writeToFile(activeVideo.getActiveResourceTypeNameFile(), typeName);
+
+    return resource;
   }
 
   public Maybe<Resource> nextResource() {
@@ -189,6 +200,7 @@ public class VideosService {
     if (Objects.nonNull(video)) {
       writeActiveVideoInfo(video, clean);
     }
+    writeResourceData(clean);
   }
 
   public void writeActiveVideoInfo(Video video, Boolean clean) throws IOException {
