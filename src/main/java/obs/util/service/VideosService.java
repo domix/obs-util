@@ -54,9 +54,9 @@ public class VideosService {
     if (baseDir.startsWith("~/")) {
       String replace = baseDir.replace("~/", "");
       String home = System.getProperty("user.home");
-      this.baseDirectory = home + "/" + replace;
+      baseDirectory = home + "/" + replace;
     } else {
-      this.baseDirectory = baseDir;
+      baseDirectory = baseDir;
     }
 
     this.dateJob = dateJob;
@@ -68,7 +68,7 @@ public class VideosService {
     Path tmpDirectoryPath = Paths.get(tmpFilesDirectory);
     Files.createDirectories(baseDirectoryPath);
     Files.createDirectories(tmpDirectoryPath);
-    activeVideo.setBaseWorkDir(this.baseDirectory);
+    activeVideo.setBaseWorkDir(baseDirectory);
   }
 
   private Video createVideo(byte[] bytes) {
@@ -281,11 +281,10 @@ public class VideosService {
     final Map<String, Object> params = new HashMap<>();
     int size = 200;
     int resize = size;
-    BufferedImage resized = this.resize(image, resize, resize);
-    BufferedImage circledAvatar = circled ? this.circle(resized, resize) : resized;
+    BufferedImage resized = resize(image, resize, resize);
+    BufferedImage circledAvatar = circled ? circle(resized, resize) : resized;
 
-    Path destinationPath = Paths.get(destination);
-    File destinationFile = Files.createFile(destinationPath).toFile();
+    File destinationFile = new File(destination);
     BufferedImage canvas = canvas(size, circledAvatar);
 
     Imaging.writeImage(canvas, destinationFile, format, params);
@@ -334,8 +333,8 @@ public class VideosService {
   @PostConstruct
   public void loadResourceTypesIcons() {
     Stream.of(ResourceType.values()).parallel().forEach(resourceType -> {
-      String resourceFile = tmpFilesDirectory + "/resource_" + resourceType.getName() + ".png";
-      this.downloadFile(resourceType.getIconUrl(), resourceFile);
+      String resourceFile = activeVideo.getResourceTypeAvatarFile(resourceType);
+      downloadFile(resourceType.getIconUrl(), resourceFile);
     });
   }
 }
