@@ -5,14 +5,20 @@ import io.reactivex.Maybe;
 import io.reactivex.schedulers.Schedulers;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import obs.util.model.ActiveVideo;
 import obs.util.model.Participant;
 import obs.util.model.Resource;
 import obs.util.model.Video;
+import org.apache.commons.imaging.*;
 import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.inject.Singleton;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -20,14 +26,16 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 import static io.reactivex.Maybe.just;
+import static java.awt.AlphaComposite.Clear;
+import static java.awt.AlphaComposite.Src;
+import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.util.Optional.ofNullable;
@@ -234,11 +242,10 @@ public class VideosService {
         String github = clean ? "" : participant.getGithub();
         String company = clean ? "" : participant.getCompany();
         String companyTitle = clean ? "" : participant.getCompanyTitle();
-
-
         String tempFile = tmpFilesDirectory + "/participantAvatarTmp" + i + "_.tmp";
         downloadFile(participant.getAvatar(), tempFile);
 
+        imageFile(tempFile, activeVideo.getParticipantAvatarFile(i), true);
 
         dateJob.writeToFile(activeVideo.getParticipantRoleFile(i), roleName);
         dateJob.writeToFile(activeVideo.getParticipantNameFile(i), name);
@@ -264,5 +271,64 @@ public class VideosService {
       log.warn("Cant Download avatar file from " + url, t);
     }
     return result;
+  }
+
+
+  public File imageFile(String sourceFile, String destination, Boolean circled) throws ImageReadException, ImageWriteException, IOException {
+    File file = new File(sourceFile);
+
+    final BufferedImage image = Imaging.getBufferedImage(file);
+    final ImageFormat format = ImageFormats.PNG;
+    final Map<String, Object> params = new HashMap<>();
+    int size = 200;
+    int resize = size;
+    BufferedImage resized = this.resize(image, resize, resize);
+    BufferedImage circledAvatar = circled ? this.circle(resized, resize) : resized;
+
+    Path destinationPath = Paths.get(destination);
+    File destinationFile = Files.createFile(destinationPath).toFile();
+    BufferedImage canvas = canvas(size, circledAvatar);
+
+    Imaging.writeImage(canvas, destinationFile, format, params);
+
+    return destinationFile;
+  }
+
+  public BufferedImage canvas(int width, BufferedImage avatar) {
+    int height = width;
+    // Constructs a BufferedImage of one of the predefined image types.
+    BufferedImage bufferedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
+
+    // Create a graphics which can be used to draw into the buffered image
+    Graphics2D g2d = bufferedImage.createGraphics();
+
+    // fill all the image with white
+    g2d.setComposite(Clear);
+    g2d.fillRect(0, 0, width, height);
+
+    g2d.setComposite(Src);
+    RescaleOp rop = new RescaleOp(1f, 4f, null);
+    g2d.drawImage(avatar, rop, 0, 0);
+
+    // Disposes of this graphics context and releases any system resources that it is using.
+    g2d.dispose();
+
+    return bufferedImage;
+  }
+
+  public BufferedImage circle(BufferedImage bufferedImage, int width) {
+    BufferedImage circleBuffer = new BufferedImage(width, width, TYPE_INT_ARGB);
+    Graphics2D g2 = circleBuffer.createGraphics();
+    g2.setClip(new Ellipse2D.Float(0, 0, width, width));
+    g2.drawImage(bufferedImage, 0, 0, width, width, null);
+    g2.dispose();
+
+    return circleBuffer;
+  }
+
+  public BufferedImage resize(BufferedImage img, int newW, int newH) throws IOException {
+    return Thumbnails.of(img)
+      .size(newW, newH)
+      .asBufferedImage();
   }
 }
