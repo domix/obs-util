@@ -7,7 +7,7 @@ import lombok.ToString;
 @ToString
 public enum ResourceType {
   NEWS_ITEM("https://cloudnative.mx/media/icons/news.png", "Noticia", 0),
-  TWEET("https://cloudnative.mx/media/icons/event.png", "Tweet", 1),
+  TWEET("https://cloudnative.mx/media/icons/tweet.png", "Tweet", 1),
   REFERENCE("https://cloudnative.mx/media/icons/resource.png", "Referencia", 2),
   SOURCE_CODE_REPO("https://cloudnative.mx/media/icons/source-code.png", "Repo chingón de código", 3),
   EVENT("https://cloudnative.mx/media/icons/event.png", "Evento", 4);

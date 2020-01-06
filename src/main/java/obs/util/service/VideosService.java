@@ -170,7 +170,7 @@ public class VideosService {
   }
 
   //TODO: improve this, perhaps Resource should be null (use Optional<Resource> instead)
-  private Resource writeResourceData(Boolean clean) throws IOException {
+  private Resource writeResourceData(Boolean clean) throws IOException, ImageWriteException, ImageReadException {
     var video = activeVideo.getVideo();
     var index = activeVideo.getResourceIndex();
     Resource resource = null;
@@ -196,6 +196,9 @@ public class VideosService {
     dateJob.writeToFile(activeVideo.getActiveResourceTypeIconFile(), typeIconUrl);
     dateJob.writeToFile(activeVideo.getActiveResourceTypeNameFile(), typeName);
 
+    String resourceTypeAvatarFile = activeVideo.getResourceTypeAvatarFile(resource.getType());
+    imageFile(resourceTypeAvatarFile, activeVideo.getActiveResourceTypeAvatarFile(), false, clean);
+
     return resource;
   }
 
@@ -211,7 +214,7 @@ public class VideosService {
     return resource(ActiveVideo::resetResourceIndex, null);
   }
 
-  public void writeActiveVideoInfo(Boolean clean) throws IOException {
+  public void writeActiveVideoInfo(Boolean clean) throws Exception {
     Video video = activeVideo.getVideo();
     if (Objects.nonNull(video)) {
       writeActiveVideoInfo(video, clean);

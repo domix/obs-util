@@ -84,7 +84,7 @@ public class VideoController {
   }
 
   @Get(ACTIVE_VIDEO_INFO_URI)
-  public Maybe<ActiveVideo> writeInfo(@QueryValue(value = "clean", defaultValue = "false") Boolean clean) throws IOException {
+  public Maybe<ActiveVideo> writeInfo(@QueryValue(value = "clean", defaultValue = "false") Boolean clean) throws Exception {
     log.info("Abount to write active video info, with cleaning '{}'", clean);
     videosService.writeActiveVideoInfo(clean);
     return this.active();
