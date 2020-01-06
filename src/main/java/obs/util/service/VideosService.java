@@ -262,7 +262,7 @@ public class VideosService {
         String tempFile = tmpFilesDirectory + "/participantAvatarTmp" + i + "_.tmp";
         downloadFile(participant.getAvatar(), tempFile);
 
-        imageFile(tempFile, activeVideo.getParticipantAvatarFile(i), true, clean, 200);
+        imageFile(tempFile, activeVideo.getParticipantAvatarFile(i), participant.getCircled(), clean, 200);
 
         dateJob.writeToFile(activeVideo.getParticipantRoleFile(i), roleName);
         dateJob.writeToFile(activeVideo.getParticipantNameFile(i), name);
