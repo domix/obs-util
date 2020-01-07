@@ -278,6 +278,7 @@ public class VideosService {
   }
 
   private Boolean downloadFile(String url, String destination) {
+    log.info("About to download file from '{}'", url);
     Boolean result = FALSE;
     try {
       FileUtils.copyURLToFile(
