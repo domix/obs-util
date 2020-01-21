@@ -70,6 +70,10 @@ public class ActiveVideo {
     return baseWorkDir + "/resourceTitle.txt";
   }
 
+  public String getMarkdownFile() {
+    return baseWorkDir + "/video.md";
+  }
+
   public String getActiveResourceUrlFile() {
     return baseWorkDir + "/resourceUrl.txt";
   }
