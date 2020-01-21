@@ -191,6 +191,15 @@ public class VideosService {
     }
 
     boolean emptyText = clean || Objects.isNull(video) || Objects.isNull(resource);
+    ResourceType resourceType =  resource.getType();
+    long count = video.getResources().stream()
+      .filter(resource1 -> resource1.getType().equals(resourceType)).count();
+    int size = video.getResources().size();
+    long l = index + 1;
+
+    log.info("De los recursos de tipo {}, hay {} elementos", resourceType.getName(), count);
+    log.info("Elementos totales {}", size);
+    log.info("({}-{})", l, count);
 
     String name = emptyText ? "" : resource.getName();
     String url = emptyText ? "" : resource.getUrl();
