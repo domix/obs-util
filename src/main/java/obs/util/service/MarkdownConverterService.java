@@ -77,16 +77,18 @@ public class MarkdownConverterService {
 
   private void transformSection( MarkdownBuilder markdownBuilder, Video video,
                                  String sectionName, ResourceType resourceType) {
-    Heading sectionHeader = new Heading(sectionName, 2);
-    sectionHeader.setUnderlineStyle(false);
-    markdownBuilder.append(sectionHeader)
-            .newParagraph();
+
 
     List<Resource> resourceList = findAllResourcesByType(resourceType, video);
 
     if (CollectionUtils.isEmpty(resourceList)) {
       return;
     }
+
+    Heading sectionHeader = new Heading(sectionName, 2);
+    sectionHeader.setUnderlineStyle(false);
+    markdownBuilder.append(sectionHeader)
+      .newParagraph();
 
     ListBuilder markdownListBuilder = markdownBuilder.beginList();
 
