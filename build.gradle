@@ -5,7 +5,7 @@ plugins {
   id "net.ltgt.apt-idea" version "0.21"
   id "com.github.ben-manes.versions" version "0.28.0"
   id 'jacoco'
-  id 'com.github.kt3k.coveralls' version '2.9.0'
+  id 'com.github.kt3k.coveralls' version '2.10.1'
 }
 
 
