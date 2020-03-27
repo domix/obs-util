@@ -6,6 +6,7 @@ plugins {
   id "com.github.ben-manes.versions" version "0.28.0"
   id 'jacoco'
   id 'com.github.kt3k.coveralls' version '2.10.1'
+  id 'com.google.cloud.tools.jib' version '2.1.0'
 }
 
 
@@ -78,5 +79,27 @@ jacocoTestReport {
   reports {
     xml.enabled = true // coveralls plugin depends on xml format report
     html.enabled = true
+  }
+}
+
+jib {
+  from {
+    image = 'adoptopenjdk/openjdk13-openj9:jdk-13.0.2_8_openj9-0.18.0-alpine-slim'
+  }
+  to {
+    image = "${ repo }:${ version.toString().toLowerCase() }"
+    //tags = ['latest', "docker.pkg.github.com/${ repo }/obs-util:${ version.toString().toLowerCase() }".toString()]
+    tags = ['latest']
+  }
+  container {
+    jvmFlags = [
+      "-Dcom.sun.management.jmxremote",
+      "-Xmx128m",
+      "-XX:+IdleTuningGcOnIdle",
+      "-Xtune:virtualized",
+      '-Xdebug'
+    ]
+    labels = [maintainer: "Domingo Suarez Torres <domingo.suarez@gmail.com>"]
+    format = 'OCI'
   }
 }
