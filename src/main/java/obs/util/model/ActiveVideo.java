@@ -66,6 +66,10 @@ public class ActiveVideo {
     return baseWorkDir + "/showLogo.png";
   }
 
+  public String getStartTimeFile() {
+    return baseWorkDir + "/startTime.txt";
+  }
+
   public String getActiveResourceTitleFile() {
     return baseWorkDir + "/resourceTitle.txt";
   }

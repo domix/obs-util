@@ -29,6 +29,8 @@ public class DateJob {
   }
 
   public FileProps schedule(FileProps build) {
+    log.info("Scheduling tasks...");
+    log.info("Using cron expression: {}", build.getCronExpression());
     ScheduledFuture<FileProps> schedule = taskScheduler
       .schedule(build.getCronExpression(), new DatetimeFileWriter(this, build));
 

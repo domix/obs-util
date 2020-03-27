@@ -77,6 +77,7 @@ public class DatetimeFileWriter implements Callable<FileProps> {
       }
       str = out.toString();
     } else {
+      dateJob.removeTask(props.getId());
       str = props.getStartedMessage();
     }
     dateJob.writeToFile(props.getDestination(), str);
