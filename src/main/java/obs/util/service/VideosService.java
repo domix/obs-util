@@ -37,6 +37,7 @@ import static java.awt.AlphaComposite.Src;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
@@ -95,6 +96,35 @@ public class VideosService {
       .map(this::saveToMarkdown);
   }
 
+  public Video createDateJob(Video video) throws Exception {
+    String startTimeFile = activeVideo.getStartTimeFile();
+    dateJob.writeToFile(startTimeFile, "");
+
+    FileProps timeInfo = video.getStartTimeInfo();
+    if (nonNull(timeInfo)) {
+      log.info("Video '{}' with start date.", video.getId());
+      log.info("FileProps: {}", timeInfo.toString());
+      FileProps build = FileProps.builder()
+        .cronExpression(timeInfo.getCronExpression())
+        .outputFormat(timeInfo.getOutputFormat())
+        .destination(startTimeFile)
+        .dateFormatPattern(timeInfo.getDateFormatPattern())
+        .id(video.getId())
+        .prefix(timeInfo.getPrefix())
+        .startedMessage(timeInfo.getStartedMessage())
+        .startTime(video.getStartTimeInfo().getStartTime())
+        .timeZone(timeInfo.getTimeZone())
+        .build();
+
+      log.info("FileProps: {}", build.toString());
+
+      dateJob.schedule(build);
+    } else {
+      log.info("No tiene satrt time");
+    }
+    return video;
+  }
+
   public Video addToStorage(Video video) {
     storage.put(video.getId(), video);
     log.info("Video '{}' added to storage.", video.getId());
@@ -123,7 +153,7 @@ public class VideosService {
   public Video fromStorageOrNull(String id) {
     log.info("Trying to find in storage video with id: '{}'", id);
     Video video = storage.getOrDefault(id, null);
-    log.info("Video found in storage? {}", Objects.nonNull(video));
+    log.info("Video found in storage? {}", nonNull(video));
     return video;
   }
 
@@ -191,7 +221,7 @@ public class VideosService {
     }
 
     boolean emptyText = clean || Objects.isNull(video) || Objects.isNull(resource);
-    ResourceType resourceType =  resource.getType();
+    ResourceType resourceType = resource.getType();
     long count = video.getResources().stream()
       .filter(resource1 -> resource1.getType().equals(resourceType)).count();
     int size = video.getResources().size();
@@ -235,7 +265,7 @@ public class VideosService {
 
   public void writeActiveVideoInfo(Boolean clean) throws Exception {
     Video video = activeVideo.getVideo();
-    if (Objects.nonNull(video)) {
+    if (nonNull(video)) {
       writeActiveVideoInfo(video, clean);
     }
     writeResourceData(clean);
@@ -265,6 +295,8 @@ public class VideosService {
     } else {
       //TODO: generate a empty png file when the logo is empty.
     }
+
+    createDateJob(video);
 
     log.info("General files has been written.");
 
