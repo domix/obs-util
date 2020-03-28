@@ -45,8 +45,8 @@ public class DatetimeFileWriter implements Callable<FileProps> {
     long difference = date.getTime() - nowTime;
     String str;
 
-    log.info("Now:       {}", now);
-    log.info("Scheduled: {}", date);
+    log.trace("Now:       {}", now);
+    log.trace("Scheduled: {}", date);
     if (nowTime < date.getTime()) {
       StringBuilder out = new StringBuilder();
       int seconds = (int) (difference / 1000) % 60;

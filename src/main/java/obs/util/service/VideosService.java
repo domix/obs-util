@@ -1,9 +1,12 @@
 package obs.util.service;
 
 import io.micronaut.context.annotation.Value;
+import io.micronaut.runtime.event.annotation.EventListener;
+import io.micronaut.runtime.server.event.ServerStartupEvent;
 import io.reactivex.Maybe;
 import io.reactivex.schedulers.Schedulers;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import obs.util.model.*;
@@ -20,6 +23,7 @@ import java.awt.image.RescaleOp;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,6 +47,7 @@ import static java.util.Optional.ofNullable;
 @Slf4j
 @Singleton
 public class VideosService {
+  public static final String BLANK_STRING = "";
   private final ConcurrentMap<String, Video> storage = new ConcurrentHashMap<>();
   private final Yaml yaml;
   private final DateJob dateJob;
@@ -55,7 +60,7 @@ public class VideosService {
   public VideosService(DateJob dateJob, @Value("${basedir:~/.obs-util}") String baseDir, MarkdownConverterService markdownConverterService) throws IOException {
     this.markdownConverterService = markdownConverterService;
     if (baseDir.startsWith("~/")) {
-      String replace = baseDir.replace("~/", "");
+      String replace = baseDir.replace("~/", BLANK_STRING);
       String home = System.getProperty("user.home");
       baseDirectory = home + "/" + replace;
     } else {
@@ -72,6 +77,12 @@ public class VideosService {
     Files.createDirectories(baseDirectoryPath);
     Files.createDirectories(tmpDirectoryPath);
     activeVideo.setBaseWorkDir(baseDirectory);
+  }
+
+  @SneakyThrows
+  @EventListener
+  void onStartup(ServerStartupEvent event) {
+    generateGeneralEmptyFiles();
   }
 
   private Video createVideo(byte[] bytes) {
@@ -98,7 +109,7 @@ public class VideosService {
 
   public Video createDateJob(Video video) throws Exception {
     String startTimeFile = activeVideo.getStartTimeFile();
-    dateJob.writeToFile(startTimeFile, "");
+    dateJob.writeToFile(startTimeFile, BLANK_STRING);
 
     FileProps timeInfo = video.getStartTimeInfo();
     if (nonNull(timeInfo)) {
@@ -231,12 +242,12 @@ public class VideosService {
     log.info("Elementos totales {}", size);
     log.info("({}-{})", l, count);
 
-    String name = emptyText ? "" : resource.getName();
-    String url = emptyText ? "" : resource.getUrl();
-    String description = emptyText ? "" : resource.getDescription();
-    String summary = emptyText ? "" : resource.getSummary();
-    String typeIconUrl = emptyText ? "" : resource.getType().getIconUrl();
-    String typeName = emptyText ? "" : resource.getType().getName();
+    String name = emptyText ? BLANK_STRING : resource.getName();
+    String url = emptyText ? BLANK_STRING : resource.getUrl();
+    String description = emptyText ? BLANK_STRING : resource.getDescription();
+    String summary = emptyText ? BLANK_STRING : resource.getSummary();
+    String typeIconUrl = emptyText ? BLANK_STRING : resource.getType().getIconUrl();
+    String typeName = emptyText ? BLANK_STRING : resource.getType().getName();
 
     dateJob.writeToFile(activeVideo.getActiveResourceTitleFile(), name);
     dateJob.writeToFile(activeVideo.getActiveResourceUrlFile(), url);
@@ -274,9 +285,9 @@ public class VideosService {
   public void writeActiveVideoInfo(Video video, Boolean clean) throws Exception {
     log.info("About to write general files...");
 
-    String showName = clean ? "" : video.getShowName();
-    String showTitle = clean ? "" : video.getShowTitle();
-    String showSubtitle = clean ? "" : video.getShowSubtitle();
+    String showName = clean ? BLANK_STRING : video.getShowName();
+    String showTitle = clean ? BLANK_STRING : video.getShowTitle();
+    String showSubtitle = clean ? BLANK_STRING : video.getShowSubtitle();
 
     dateJob.writeToFile(activeVideo.getShowNameFile(), showName);
     dateJob.writeToFile(activeVideo.getShowTitleFile(), showTitle);
@@ -304,12 +315,12 @@ public class VideosService {
     for (int i = 0; i < video.getParticipants().size(); i++) {
       try {
         Participant participant = video.getParticipants().get(i);
-        String roleName = clean ? "" : participant.getRole().getName();
-        String name = clean ? "" : participant.getName();
-        String twitter = clean ? "" : participant.getTwitter();
-        String github = clean ? "" : participant.getGithub();
-        String company = clean ? "" : participant.getCompany();
-        String companyTitle = clean ? "" : participant.getCompanyTitle();
+        String roleName = clean ? BLANK_STRING : participant.getRole().getName();
+        String name = clean ? BLANK_STRING : participant.getName();
+        String twitter = clean ? BLANK_STRING : participant.getTwitter();
+        String github = clean ? BLANK_STRING : participant.getGithub();
+        String company = clean ? BLANK_STRING : participant.getCompany();
+        String companyTitle = clean ? BLANK_STRING : participant.getCompanyTitle();
         String tempFile = tmpFilesDirectory + "/participantAvatarTmp" + i + "_.tmp";
         downloadFile(participant.getAvatar(), tempFile);
 
@@ -328,6 +339,46 @@ public class VideosService {
     }
   }
 
+  @SneakyThrows
+  private void generateGeneralEmptyFiles() {
+    dateJob.writeToFile(activeVideo.getShowNameFile(), BLANK_STRING);
+    dateJob.writeToFile(activeVideo.getShowTitleFile(), BLANK_STRING);
+    dateJob.writeToFile(activeVideo.getShowSubtitleFile(), BLANK_STRING);
+
+    String name = "/transparent.png";
+    InputStream inputStream = this.getClass().getResourceAsStream(name);
+    Path path = Paths.get(activeVideo.getTransparentImage());
+    Files.copy(inputStream, path);
+
+
+    for (int i = 0; i < 5; i++) {
+      try {
+        imageFile(activeVideo.getTransparentImage(), activeVideo.getParticipantAvatarFile(i), false, false, 200);
+
+        dateJob.writeToFile(activeVideo.getParticipantRoleFile(i), BLANK_STRING);
+        dateJob.writeToFile(activeVideo.getParticipantNameFile(i), BLANK_STRING);
+        dateJob.writeToFile(activeVideo.getParticipantTwitterFile(i), BLANK_STRING);
+        dateJob.writeToFile(activeVideo.getParticipantGitHubFile(i), BLANK_STRING);
+        dateJob.writeToFile(activeVideo.getParticipantCompanyFile(i), BLANK_STRING);
+        dateJob.writeToFile(activeVideo.getParticipantCompanyTitleFile(i), BLANK_STRING);
+      } catch (Throwable t) {
+        log.error(t.getMessage(), t);
+      }
+    }
+    dateJob.writeToFile(activeVideo.getActiveResourceTitleFile(), BLANK_STRING);
+    dateJob.writeToFile(activeVideo.getActiveResourceUrlFile(), BLANK_STRING);
+    dateJob.writeToFile(activeVideo.getActiveResourceDescriptionFile(), BLANK_STRING);
+    dateJob.writeToFile(activeVideo.getActiveResourceSummaryFile(), BLANK_STRING);
+    dateJob.writeToFile(activeVideo.getActiveResourceTypeIconFile(), BLANK_STRING);
+    dateJob.writeToFile(activeVideo.getActiveResourceTypeNameFile(), BLANK_STRING);
+
+    imageFile(activeVideo.getTransparentImage(), activeVideo.getShowLogoFile(), false, false, 400);
+    imageFile(activeVideo.getTransparentImage(), activeVideo.getActiveResourceTypeAvatarFile(), false, false, 200);
+
+    String startTimeFile = activeVideo.getStartTimeFile();
+    dateJob.writeToFile(startTimeFile, BLANK_STRING);
+  }
+
   private Boolean downloadFile(String url, String destination) {
     log.info("About to download file from '{}'", url);
     Boolean result = FALSE;
@@ -343,7 +394,8 @@ public class VideosService {
   }
 
 
-  public File imageFile(String sourceFile, String destination, Boolean circled, Boolean clean, int size) throws ImageReadException, ImageWriteException, IOException {
+  public File imageFile(String sourceFile, String destination, Boolean circled, Boolean clean, int size) throws
+    ImageReadException, ImageWriteException, IOException {
     File file = new File(sourceFile);
 
     final BufferedImage image = Imaging.getBufferedImage(file);
