@@ -20,4 +20,5 @@ public class Video {
 
   private List<Resource> resources;
   private List<Participant> participants;
+  private YouTubeBroadcast youTube;
 }

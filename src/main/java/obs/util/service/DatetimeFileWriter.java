@@ -24,7 +24,6 @@ public class DatetimeFileWriter implements Callable<FileProps> {
 
   @Override
   public FileProps call() throws Exception {
-    log.info("Escribiendo Archivo: {}", props.getId());
     try {
       write();
     } catch (Throwable t) {

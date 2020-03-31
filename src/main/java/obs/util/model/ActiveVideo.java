@@ -70,6 +70,10 @@ public class ActiveVideo {
     return baseWorkDir + "/transparent.png";
   }
 
+  public String getActiveCommentImage() {
+    return baseWorkDir + "/activeComment.png";
+  }
+
   public String getStartTimeFile() {
     return baseWorkDir + "/startTime.txt";
   }
