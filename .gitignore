@@ -13,3 +13,4 @@ out/
 .classpath
 foo/
 data/
+src/main/resources/client_secrets.json

@@ -5,7 +5,10 @@ showTitle: Podcast S01-E15
 showSubtitle: Digital Ocean despide ingenieros-Aprende AWS con toneladas de recursos
 logoUrl: https://s3.amazonaws.com/cloudnative.mx/media/cloudnative_logo_alpha.png
 startTimeInfo:
-  startTime: "27-03-2020 1:55:00 PM"
+  startTime: "30-03-2020 3:00:00 PM"
+youTube:
+  videoId: g4blXNwfC4Y
+  userId: domix
 participants:
   - name: Marco Antonio Muñiz
     twitter: _marKox

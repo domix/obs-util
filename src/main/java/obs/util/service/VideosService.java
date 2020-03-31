@@ -12,6 +12,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import obs.util.model.*;
 import org.apache.commons.imaging.*;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import javax.annotation.PostConstruct;
@@ -41,24 +42,33 @@ import static java.awt.AlphaComposite.Src;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Objects.nonNull;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.codec.digest.DigestUtils.getSha512Digest;
 
 @Slf4j
 @Singleton
 public class VideosService {
   public static final String BLANK_STRING = "";
   private final ConcurrentMap<String, Video> storage = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, List<UserLiveComment>> comments = new ConcurrentHashMap<>();
   private final Yaml yaml;
   private final DateJob dateJob;
   private final MarkdownConverterService markdownConverterService;
+  private final YouTubeService youTubeService;
   private ActiveVideo activeVideo = new ActiveVideo();
   @Getter
   private String baseDirectory;
   private String tmpFilesDirectory;
 
-  public VideosService(DateJob dateJob, @Value("${basedir:~/.obs-util}") String baseDir, MarkdownConverterService markdownConverterService) throws IOException {
+  @SneakyThrows
+  public VideosService(DateJob dateJob,
+                       @Value("${basedir:~/.obs-util}") String baseDir,
+                       MarkdownConverterService markdownConverterService,
+                       YouTubeService youTubeService) throws IOException {
     this.markdownConverterService = markdownConverterService;
+    this.youTubeService = youTubeService;
     if (baseDir.startsWith("~/")) {
       String replace = baseDir.replace("~/", BLANK_STRING);
       String home = System.getProperty("user.home");
@@ -337,6 +347,28 @@ public class VideosService {
       }
 
     }
+
+
+    // Start get messages for video
+    if (Objects.nonNull(video.getYouTube())) {
+      log.info("Configuración de YouTube encontrada.");
+      YouTubeBroadcast youTube = video.getYouTube();
+      Optional<String> liveChatIdForVideo = youTubeService.getLiveChatIdForVideo(youTube.getUserId(), youTube.getVideoId());
+      if (liveChatIdForVideo.isPresent()) {
+        String liveChatId = liveChatIdForVideo.get();
+        String userId = youTube.getUserId();
+        try {
+          youTubeService.messagesPage(video.getId(), userId, liveChatId, null);
+        } catch (Throwable t) {
+          log.error(t.getMessage(), t);
+        }
+      } else {
+        log.warn("No fue encontrado el video");
+      }
+
+    } else {
+      log.info("Sin informacion de YouTube");
+    }
   }
 
   @SneakyThrows
@@ -348,8 +380,7 @@ public class VideosService {
     String name = "/transparent.png";
     InputStream inputStream = this.getClass().getResourceAsStream(name);
     Path path = Paths.get(activeVideo.getTransparentImage());
-    Files.copy(inputStream, path);
-
+    Files.copy(inputStream, path, REPLACE_EXISTING);
 
     for (int i = 0; i < 5; i++) {
       try {
@@ -374,6 +405,7 @@ public class VideosService {
 
     imageFile(activeVideo.getTransparentImage(), activeVideo.getShowLogoFile(), false, false, 400);
     imageFile(activeVideo.getTransparentImage(), activeVideo.getActiveResourceTypeAvatarFile(), false, false, 200);
+    imageFile(activeVideo.getTransparentImage(), activeVideo.getActiveCommentImage(), false, false, 500);
 
     String startTimeFile = activeVideo.getStartTimeFile();
     dateJob.writeToFile(startTimeFile, BLANK_STRING);
@@ -462,5 +494,37 @@ public class VideosService {
       String resourceFile = activeVideo.getResourceTypeAvatarFile(resourceType);
       downloadFile(resourceType.getIconUrl(), resourceFile);
     });
+  }
+
+  public void addUserComment(String videoId, UserLiveComment userLiveComment) {
+    List<UserLiveComment> userLiveComments =
+      ofNullable(comments.get(videoId))
+        .orElseGet(ArrayList::new);
+
+    boolean exists = userLiveComments
+      .stream()
+      .anyMatch(
+        inStorage ->
+          Objects.equals(
+            inStorage.getSourceCommentId(),
+            userLiveComment.getSourceCommentId()));
+
+    if (!exists) {
+      log.info("Nuevo mensaje entrante...");
+      byte[] digest = getSha512Digest()
+        .digest(userLiveComment.getUserImageUrl().getBytes());
+
+      byte[] encode = Base64.getEncoder().encode(digest);
+
+      String extension = FilenameUtils.getExtension(userLiveComment.getUserImageUrl());
+
+      String s = new String(encode)
+        .replaceAll("[\\\\/:*?\"<>|]", "") + extension;
+      userLiveComment.setUserLocalImageFileName(s);
+      userLiveComments.add(userLiveComment);
+      log.info(userLiveComment.getUserImageUrl());
+      log.info(userLiveComment.getUserLocalImageFileName());
+    }
+    comments.put(videoId, userLiveComments);
   }
 }
