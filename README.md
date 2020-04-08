@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/domix/obs-util.svg?branch=master)](https://travis-ci.org/domix/obs-util)
 
 
-docker run --rm -p 8080:8080 -v C:\obs\data:/data -e BASEDIR=/data domix/obs-util:0.0.5
+docker run --rm -p 8080:8080 -v C:\obs\data:/data -e BASEDIR=/data domix/obs-util:0.0.6
 
 
 docker run -it -v C:\obs\data:/data --rm --net=host alpine/httpie:1.0.3  --form POST :8080/v1/videos video@/data/video.yaml 
