@@ -99,7 +99,7 @@ public class YouTubeService {
     var channelRequest =
       youtube
         .channels()
-        .list("contentDetails");
+        .list(List.of("contentDetails"));
 
     channelRequest.setMine(true);
     channelRequest.setFields("items/contentDetails,nextPageToken,pageInfo");
@@ -118,7 +118,7 @@ public class YouTubeService {
 
       var playlistItemRequest =
         youtube.playlistItems()
-          .list("id,contentDetails,snippet");
+          .list(List.of("id,contentDetails,snippet"));
 
       playlistItemRequest.setPlaylistId(uploadPlaylistId);
 
@@ -154,7 +154,7 @@ public class YouTubeService {
     var youtube = createYouTube(userId);
 
     var broadcasts = youtube.liveBroadcasts()
-      .list("id,snippet,contentDetails,status");
+      .list(List.of("id,snippet,contentDetails,status"));
 
     broadcasts.setBroadcastStatus("all");
     broadcasts.setBroadcastType("all");
@@ -175,7 +175,7 @@ public class YouTubeService {
     var youtube = createYouTube(userId);
 
     var broadcasts = youtube.liveBroadcasts()
-      .list("id,snippet,contentDetails,status");
+      .list(List.of("id,snippet,contentDetails,status"));
 
     broadcasts.setBroadcastStatus("active");
     broadcasts.setBroadcastType("all");
@@ -198,7 +198,7 @@ public class YouTubeService {
   @SneakyThrows
   public void liveChatMessages(String userId, String liveChatId) {
     var youTube = createYouTube(userId);
-    var s = "id,snippet,authorDetails";
+    var s = List.of("id,snippet,authorDetails");
     String token = null;
 
 
@@ -237,7 +237,7 @@ public class YouTubeService {
     var requestLiveStreams =
       youtube
         .liveStreams()
-        .list("id,contentDetails,snippet");
+        .list(List.of("id,contentDetails,snippet"));
     //YouTube.LiveChatMessages.List requestLiveChatMessages = youtube.liveChatMessages().list("", "");
     requestLiveStreams.setMaxResults(50l);
     requestLiveStreams.setMine(true);
@@ -291,7 +291,7 @@ public class YouTubeService {
         Map.of(
           "name", playlistItem.getSnippet().getTitle(),
           "id", playlistItem.getContentDetails().getVideoId(),
-          "date", playlistItem.getSnippet().getPublishedAt().toStringRfc3339()))
+          "date", playlistItem.getSnippet().getPublishedAt()))
       .collect(toList());
   }
 
@@ -313,7 +313,7 @@ public class YouTubeService {
   public MessagePage messagesPage(String videoId, String userId, String liveChatId, String token) {
     log.trace("Retrieveing comment for {}, using token {}", liveChatId, token);
     var youTube = createYouTube(userId);
-    var s = "id,snippet,authorDetails";
+    var s = List.of("id,snippet,authorDetails");
 
     YouTube.LiveChatMessages.List list = null;
     try {
