@@ -88,7 +88,7 @@ jacocoTestReport {
 
 jib {
   from {
-    image = 'adoptopenjdk/openjdk13-openj9:jdk-13.0.2_8_openj9-0.18.0-alpine-slim'
+    image = 'adoptopenjdk/openjdk14:x86_64-alpine-jdk-14_36-slim'
   }
   to {
     image = "${ repo }:${ version.toString().toLowerCase() }"
@@ -99,8 +99,8 @@ jib {
     jvmFlags = [
       "-Dcom.sun.management.jmxremote",
       "-Xmx128m",
-      "-XX:+IdleTuningGcOnIdle",
-      "-Xtune:virtualized",
+      //"-XX:+IdleTuningGcOnIdle",
+      //"-Xtune:virtualized",
       '-Xdebug'
     ]
     labels = [maintainer: "Domingo Suarez Torres <domingo.suarez@gmail.com>"]
