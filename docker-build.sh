@@ -10,6 +10,5 @@ echo $VERSION
   git release $VERSION && \
   docker tag ${REPO}:${VERSION} docker.pkg.github.com/${REPO}/obs-util:${VERSION} && \
   docker push ${REPO}:${VERSION} && \
-  docker push ${REPO}:latest && \
   docker push docker.pkg.github.com/${REPO}/obs-util:${VERSION} && \
   echo "Done"
