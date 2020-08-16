@@ -6,7 +6,7 @@
 
 
 ```
-docker run --rm -p 8080:8080 -v C:\obs\data:/data -e BASEDIR=/data domix/obs-util:0.0.8
+docker run --rm -p 8080:8080 -d -v C:\obs\data:/data -e BASEDIR=/data domix/obs-util:0.0.8
 ```
 
 
