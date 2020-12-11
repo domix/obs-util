@@ -45,7 +45,7 @@ dependencies {
   implementation 'com.google.api-client:google-api-client:1.31.1'
   implementation 'com.google.apis:google-api-services-youtube:v3-rev20201202-1.31.0'
   implementation 'com.google.oauth-client:google-oauth-client-jetty:1.31.1'
-  implementation 'com.google.auth:google-auth-library-oauth2-http:0.22.0'
+  implementation 'com.google.auth:google-auth-library-oauth2-http:0.22.1'
 
   runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
   testAnnotationProcessor "org.projectlombok:lombok:${ lombokVersion }"
