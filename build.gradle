@@ -1,41 +1,40 @@
 plugins {
-  id "com.github.johnrengelman.shadow" version "7.0.0"
-  id "application"
-  id "net.ltgt.apt-eclipse" version "0.21"
-  id "net.ltgt.apt-idea" version "0.21"
-  id "com.github.ben-manes.versions" version "0.39.0"
-  id 'jacoco'
-  id 'com.github.kt3k.coveralls' version '2.12.0'
-  id 'com.google.cloud.tools.jib' version '3.1.4'
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("io.micronaut.application") version "2.0.5"
+
+    id "com.github.ben-manes.versions" version "0.39.0"
+    id 'jacoco'
+    id 'com.github.kt3k.coveralls' version '2.12.0'
+    id 'com.google.cloud.tools.jib' version '3.1.4'
 }
 
-
-group "obs.util"
+version = "0.1"
+group = "obs.util"
 
 repositories {
-  mavenCentral()
-  maven { url "https://jcenter.bintray.com" }
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
 }
 
-configurations {
-  // for dependencies that are needed for development only
-  developmentOnly
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("obs.util.*")
+    }
 }
 
 dependencies {
-  compileOnly "org.projectlombok:lombok:${ lombokVersion }"
-  annotationProcessor "org.projectlombok:lombok:${ lombokVersion }"
-  annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
-  annotationProcessor "io.micronaut:micronaut-graal"
-  annotationProcessor "io.micronaut:micronaut-inject-java"
-  annotationProcessor "io.micronaut:micronaut-validation"
-  //compileOnly "com.oracle.substratevm:svm"
-  implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
-  implementation "io.micronaut:micronaut-http-client"
-  implementation "io.micronaut:micronaut-inject"
-  implementation "io.micronaut:micronaut-validation"
-  implementation "io.micronaut:micronaut-runtime"
-  implementation "io.micronaut:micronaut-http-server-netty"
+  annotationProcessor("org.projectlombok:lombok")
+  annotationProcessor("io.micronaut:micronaut-http-validation")
+  implementation("io.micronaut:micronaut-http-client")
+  implementation("io.micronaut:micronaut-runtime")
+  implementation("javax.annotation:javax.annotation-api")
+  compileOnly("org.projectlombok:lombok")
+  runtimeOnly("ch.qos.logback:logback-classic")
+  implementation("io.micronaut:micronaut-validation")
+
   implementation 'commons-io:commons-io:2.8.0'
   implementation 'org.apache.commons:commons-imaging:1.0-alpha2'
   implementation 'net.coobird:thumbnailator:0.4.14'
@@ -47,36 +46,16 @@ dependencies {
   implementation 'com.google.oauth-client:google-oauth-client-jetty:1.32.1'
   implementation 'com.google.auth:google-auth-library-oauth2-http:1.1.0'
 
-  runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-  testAnnotationProcessor "org.projectlombok:lombok:${ lombokVersion }"
-  testAnnotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
-  testAnnotationProcessor "io.micronaut:micronaut-inject-java"
-  testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
-  testImplementation "org.junit.jupiter:junit-jupiter-api"
-  testImplementation "io.micronaut.test:micronaut-test-junit5"
   testImplementation "org.mockito:mockito-junit-jupiter:3.9.0"
-  testImplementation "org.projectlombok:lombok:${ lombokVersion }"
-  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
 
-test.classpath += configurations.developmentOnly
-
-mainClassName = "obs.util.Application"
-// use JUnit 5 platform
-test {
-  useJUnitPlatform()
+application {
+    mainClass.set("obs.util.Application")
 }
 
-shadowJar {
-  mergeServiceFiles()
-  archiveName 'obs-util.jar'
-}
-
-run.classpath += configurations.developmentOnly
-run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
-tasks.withType(JavaCompile) {
-  options.encoding = "UTF-8"
-  options.compilerArgs.add('-parameters')
+java {
+    sourceCompatibility = JavaVersion.toVersion("16")
+    targetCompatibility = JavaVersion.toVersion("16")
 }
 
 jacocoTestReport {
